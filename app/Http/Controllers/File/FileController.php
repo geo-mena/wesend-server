@@ -8,6 +8,7 @@ use App\Services\EncryptionService;
 use Illuminate\Http\Request;
 use App\Models\File;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class FileController extends Controller
 {
@@ -33,6 +34,7 @@ class FileController extends Controller
         try {
             $chunk = $request->file('file');
             $chunkNumber = $request->input('chunk');
+            $totalChunks = $request->input('totalChunks');
             $uploadId = $request->input('uploadId');
 
             // Encriptar chunk
@@ -42,7 +44,7 @@ class FileController extends Controller
             );
 
             // Almacenar chunk en Redis
-            $this->uploadService->storeChunk($uploadId, $chunkNumber, $encryptedChunk);
+            $this->uploadService->storeChunk($uploadId, $chunkNumber, $encryptedChunk, $totalChunks);
 
             return response()->json([
                 'success' => true,
@@ -83,9 +85,11 @@ class FileController extends Controller
 
             return response()->json([
                 'success' => true,
-                'fileId' => $file->id
+                'fileId' => $file->id,
+                'message' => 'File uploaded successfully'
             ]);
         } catch (Exception $e) {
+            Log::debug('Error finalizing upload: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Error finalizing upload'

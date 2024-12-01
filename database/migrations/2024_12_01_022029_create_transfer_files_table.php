@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('transfer_files', function (Blueprint $table) {
-            $table->id();
             $table->unsignedBigInteger('transfer_id');
             $table->unsignedBigInteger('file_id');
 
@@ -20,6 +19,7 @@ return new class extends Migration
             $table->foreign('file_id')->references('id')->on('files')->onDelete('cascade');
 
             $table->primary(['transfer_id', 'file_id']);
+            
             $table->timestamps();
         });
     }
