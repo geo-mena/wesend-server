@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Services\TransferService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -20,11 +21,8 @@ class CleanupExpiredFilesJob implements ShouldQueue
         //
     }
 
-    /**
-     * Execute the job.
-     */
-    public function handle(): void
+    public function handle(TransferService $transferService)
     {
-        //
+        $transferService->deleteExpiredTransfers();
     }
 }
