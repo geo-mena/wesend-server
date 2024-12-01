@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use Exception;
+use Illuminate\Support\Facades\Log;
 use ImageKit\ImageKit;
 
 class ImagekitService
@@ -19,11 +21,20 @@ class ImagekitService
 
     public function upload(array $params)
     {
-        return $this->imagekit->upload([
-            'file' => $params['file'],
-            'fileName' => $params['fileName'],
-            'useUniqueFileName' => true
-        ]);
+        try {
+            $response = $this->imagekit->upload([
+                'file' => $params['file'],
+                'fileName' => $params['fileName'],
+                'useUniqueFileName' => true
+            ]);
+
+            Log::debug('ImageKit response:', ['response' => json_encode($response)]);
+        
+            return $response;
+        } catch (Exception $e) {
+            Log::error('ImageKit upload error: ' . $e->getMessage());
+            throw $e;
+        }
     }
 
     public function getFile(string $path)
