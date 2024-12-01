@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\Transfer;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class TransferController extends Controller
 {
@@ -101,35 +102,61 @@ class TransferController extends Controller
     //! Método para descargar un archivo
     public function download($token, Request $request)
     {
-        $transfer = Transfer::where('download_token', $token)
-            ->where('expires_at', '>', now())
-            ->firstOrFail();
-
-        // Verificar contraseña si existe
-        if ($transfer->password) {
-            $request->validate([
-                'password' => 'required|string'
-            ]);
-
-            if (!Hash::check($request->input('password'), $transfer->password)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid password'
-                ], 403);
-            }
-        }
-
         try {
+            $transfer = Transfer::where('download_token', $token)
+                ->where('expires_at', '>', now())
+                ->with('files')
+                ->firstOrFail();
+
+            // Verificar contraseña si existe
+            if ($transfer->password) {
+                $request->validate([
+                    'password' => 'required|string'
+                ]);
+
+                if (!Hash::check($request->input('password'), $transfer->password)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid password'
+                    ], 403);
+                }
+            }
+
+
             // Obtener archivo de ImageKit y desencriptar
             $file = $transfer->files()->first();
+
+            if (!$file) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No file found'
+                ], 404);
+            }
+
             $fileContent = $this->transferService->getDecryptedFile($file);
 
-            return response()->streamDownload(function () use ($fileContent) {
-                echo $fileContent;
-            }, $file->original_name, [
-                'Content-Type' => $file->mime_type
-            ]);
+            if (empty($fileContent)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Empty file content'
+                ], 500);
+            }
+
+            $headers = [
+                'Content-Type' => $file->mime_type,
+                'Content-Disposition' => 'inline; filename="' . $file->original_name . '"',
+                'Content-Length' => strlen($fileContent),
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+                'Pragma' => 'no-cache'
+            ];
+
+            return response($fileContent, 200, $headers);
         } catch (Exception $e) {
+            Log::error('Download error', [
+                'token' => $token,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return response()->json([
                 'success' => false,
                 'message' => 'Error downloading file'
