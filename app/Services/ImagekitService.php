@@ -22,14 +22,22 @@ class ImagekitService
     public function upload(array $params)
     {
         try {
+            $tempFile = tempnam(sys_get_temp_dir(), 'upload_');
+            file_put_contents($tempFile, $params['file']);
+
             $response = $this->imagekit->upload([
-                'file' => $params['file'],
+                'file' => fopen($tempFile, 'r'),
                 'fileName' => $params['fileName'],
                 'useUniqueFileName' => true
             ]);
 
-            Log::debug('ImageKit response:', ['response' => json_encode($response)]);
-        
+            unlink($tempFile);
+
+            // Verificar que el tamaño subido coincida con el original
+            if (($response->result->size ?? 0) !== strlen($params['file'])) {
+                throw new Exception('Upload size mismatch');
+            }
+
             return $response;
         } catch (Exception $e) {
             Log::error('ImageKit upload error: ' . $e->getMessage());
@@ -39,7 +47,33 @@ class ImagekitService
 
     public function getFile(string $path)
     {
-        return file_get_contents($path);
+        try {
+            $opts = ([
+                'http' => [
+                    'method' => 'GET',
+                    'header' => [
+                        'Accept: application/octet-stream',
+                        'Content-Type: application/octet-stream'
+                    ],
+                    'ignore_errors' => true
+                ]
+            ]);
+
+            $context = stream_context_create($opts);
+            $content = file_get_contents($path, false, $context);
+
+            if ($content === false) {
+                throw new Exception('Failed to fetch file content');
+            }
+
+            return $content;
+        } catch (Exception $e) {
+            Log::error('ImageKit getFile error', [
+                'path' => $path,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
     }
 
     public function deleteFile(string $fileId)
