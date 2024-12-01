@@ -19,6 +19,10 @@ class Transfer extends Model
         'expires_at',
     ];
 
+    protected $casts = [
+        'expires_at' => 'datetime'
+    ];
+
     public function files()
     {
         return $this->belongsToMany(File::class, 'transfer_files');

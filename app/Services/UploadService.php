@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
@@ -22,6 +23,7 @@ class UploadService
 
     public function storeChunk(string $uploadId, int $chunkNumber, string $chunkData, int $totalChunks)
     {
+        // Guardar chunk en Redis
         $this->redis->hset(
             "upload:{$uploadId}:chunks",
             "chunk:{$chunkNumber}",
@@ -29,7 +31,7 @@ class UploadService
         );
 
         // Guardar el total de chunks si aún no existe
-        $this->redis->hsetnx(
+        $this->redis->hset(
             "upload:{$uploadId}:progress",
             'total_chunks',
             $totalChunks
@@ -56,10 +58,6 @@ class UploadService
                 $completeFile .= $chunk;
             }
 
-            if (empty($completeFile)) {
-                throw new \Exception('Empty file content');
-            }
-
             // Generar nombre único
             $fileName = uniqid('file_') . '.encrypted';
 
@@ -67,14 +65,8 @@ class UploadService
             $uploadedFile = $this->imagekitService->upload([
                 'file' => $completeFile,
                 'fileName' => $fileName,
+                'binary' => true
             ]);
-
-
-            if (
-                !isset($uploadedFile->result) || !isset($uploadedFile->result->url)
-            ) {
-                throw new \Exception('Invalid response from ImageKit');
-            }
 
             // Limpiar chunks de Redis
             $this->redis->del("upload:{$uploadId}:chunks");
@@ -85,8 +77,7 @@ class UploadService
                 'size' => strlen($completeFile),
                 'encryption_key' => config('app.encryption_key')
             ];
-        } catch (\Exception $e) {
-            // Puedes agregar logs aquí si lo deseas
+        } catch (Exception $e) {
             Log::error('Error in finalizeUpload: ' . $e->getMessage());
             throw $e;
         }

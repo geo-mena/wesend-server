@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\File;
 use App\Models\Transfer;
+use Exception;
+use Illuminate\Support\Facades\Log;
 
 class TransferService
 {
@@ -20,14 +22,25 @@ class TransferService
 
     public function getDecryptedFile(File $file)
     {
-        // Obtener archivo encriptado de ImageKit
-        $encryptedContent = $this->imagekitService->getFile($file->storage_path);
+        try {
+            // Obtener archivo encriptado de ImageKit
+            $encryptedContent = $this->imagekitService->getFile($file->storage_path);
 
-        // Desencriptar contenido
-        return $this->encryptionService->decrypt(
-            $encryptedContent,
-            $file->encryption_key
-        );
+            // Desencriptar contenido
+            $decryptedContent = $this->encryptionService->decrypt(
+                $encryptedContent,
+                $file->encryption_key
+            );
+
+            return $decryptedContent;
+        } catch (Exception $e) {
+            Log::error('Error in getDecryptedFile', [
+                'file_id' => $file->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
+        }
     }
 
     public function deleteExpiredTransfers()

@@ -38,12 +38,23 @@ class FileController extends Controller
             $uploadId = $request->input('uploadId');
 
             // Encriptar chunk
+            // $encryptedChunk = $this->encryptionService->encrypt(
+            //     file_get_contents($chunk->getPathname()),
+            //     config('app.encryption_key')
+            // );
+
+            // Almacenar chunk en Redis
+            // $this->uploadService->storeChunk($uploadId, $chunkNumber, $encryptedChunk, $totalChunks);
+
+            // Leer el contenido del chunk
+            $chunkContent = file_get_contents($chunk->getPathname());
+
+            // Encriptar
             $encryptedChunk = $this->encryptionService->encrypt(
-                file_get_contents($chunk->getPathname()),
+                $chunkContent,
                 config('app.encryption_key')
             );
 
-            // Almacenar chunk en Redis
             $this->uploadService->storeChunk($uploadId, $chunkNumber, $encryptedChunk, $totalChunks);
 
             return response()->json([
@@ -72,6 +83,10 @@ class FileController extends Controller
 
             // Combinar chunks y subir a ImageKit
             $finalFile = $this->uploadService->finalizeUpload($uploadId);
+
+            if (empty($finalFile['encryption_key'])) {
+                throw new Exception('Missing encryption key in finalized file');
+            }
 
             // Crear registro en la base de datos
             $file = File::create([
