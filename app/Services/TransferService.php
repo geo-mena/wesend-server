@@ -20,6 +20,13 @@ class TransferService
         $this->encryptionService = $encryptionService;
     }
 
+    /**
+     * Método para subir un archivo a ImageKit
+     *
+     * @param File $file
+     * @param string $content
+     * @return string
+     */
     public function getDecryptedFile(File $file)
     {
         try {
@@ -43,6 +50,11 @@ class TransferService
         }
     }
 
+    /**
+     * Método para eliminar transferencias expiradas
+     *
+     * @return void
+     */
     public function deleteExpiredTransfers()
     {
         $expiredTransfers = Transfer::where('expires_at', '<', now())->get();

@@ -4,12 +4,13 @@ namespace App\Http\Controllers\File;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\SendEmailNotificationJob;
-use App\Services\TransferService;
 use Illuminate\Support\Facades\Hash;
+use App\Services\TransferService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\Transfer;
 use Exception;
+
 use Illuminate\Support\Facades\Log;
 
 class TransferController extends Controller
@@ -21,7 +22,12 @@ class TransferController extends Controller
         $this->transferService = $transferService;
     }
 
-    //! Método para crear una transferencia por email
+    /**
+     * Método para crear una transferencia por email
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function createEmailTransfer(Request $request)
     {
         $request->validate([
@@ -64,7 +70,12 @@ class TransferController extends Controller
         }
     }
 
-    //! Método para crear un enlace de descarga
+    /**
+     * Método para crear una transferencia por enlace
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function createLinkTransfer(Request $request)
     {
         $request->validate([
@@ -99,7 +110,13 @@ class TransferController extends Controller
         }
     }
 
-    //! Método para descargar un archivo
+    /**
+     * Método para descargar un archivo
+     *
+     * @param string $token
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function download($token, Request $request)
     {
         try {

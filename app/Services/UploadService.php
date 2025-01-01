@@ -47,7 +47,7 @@ class UploadService
             $chunks = $this->redis->hgetall("upload:{$uploadId}:chunks");
 
             if (empty($chunks)) {
-                throw new \Exception('No chunks found for this upload');
+                throw new Exception('No chunks found for this upload');
             }
 
             ksort($chunks); // Ordenar chunks por número

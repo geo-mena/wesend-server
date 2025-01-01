@@ -21,7 +21,12 @@ class FileController extends Controller
         $this->encryptionService = $encryptionService;
     }
 
-    //! Método para subir un chunk
+    /**
+     * Método para subir un chunk de un archivo
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function upload(Request $request)
     {
         $request->validate([
@@ -69,7 +74,12 @@ class FileController extends Controller
         }
     }
 
-    //! Método para finalizar la subida
+    /**
+     * Método para finalizar la subida de un archivo
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function finalize(Request $request)
     {
         $request->validate([
