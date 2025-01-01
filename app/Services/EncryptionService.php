@@ -9,6 +9,13 @@ class EncryptionService
 {
     private string $cipher = 'aes-256-cbc';
 
+    /**
+     * Método para encriptar un string
+     *
+     * @param string $data
+     * @param string $key
+     * @return string
+     */
     public function encrypt(string $data, string $key): string
     {
         try {
@@ -38,6 +45,13 @@ class EncryptionService
         }
     }
 
+    /**
+     * Método para desencriptar un string
+     *
+     * @param string $data
+     * @param string $key
+     * @return string
+     */
     public function decrypt(string $data, string $key): string
     {
         try {
