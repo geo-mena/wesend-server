@@ -121,4 +121,57 @@ class FileController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Método para eliminar los chunks de un archivo
+     *
+     * @param string $uploadId
+     * @return JsonResponse
+     */
+    public function deleteChunks($uploadId)
+    {
+        try {
+            // Eliminar los chunks de Redis
+            $this->uploadService->deleteChunks($uploadId);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Chunks deleted successfully'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting chunks'
+            ], 500);
+        }
+    }
+
+    /**
+     * Método para eliminar un archivo
+     *
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function deleteFile($id)
+    {
+        try {
+            $file = File::findOrFail($id);
+
+            // Eliminar archivo de ImageKit
+            $this->uploadService->deleteFileFromStorage($file->storage_path);
+
+            // Eliminar registro de la base de datos
+            $file->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'File deleted successfully'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting file'
+            ], 500);
+        }
+    }
 }
