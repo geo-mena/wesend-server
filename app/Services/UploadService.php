@@ -9,15 +9,15 @@ use Illuminate\Support\Facades\Redis;
 class UploadService
 {
     protected $redis;
-    protected $imagekitService;
+    protected $r2Service;
     protected $encryptionService;
 
     public function __construct(
-        ImagekitService $imagekitService,
+        R2Service $r2Service,
         EncryptionService $encryptionService
     ) {
         $this->redis = Redis::connection();
-        $this->imagekitService = $imagekitService;
+        $this->r2Service = $r2Service;
         $this->encryptionService = $encryptionService;
     }
 
@@ -58,22 +58,20 @@ class UploadService
                 $completeFile .= $chunk;
             }
 
-            // Generar nombre único
+            // Crear estructura de directorios por fecha
+            $dateFolder = now()->format('Y/m/d');
             $fileName = uniqid('file_') . '.encrypted';
+            $fullPath = "{$dateFolder}/{$fileName}";
 
             // Subir a ImageKit
-            $uploadedFile = $this->imagekitService->upload([
-                'file' => $completeFile,
-                'fileName' => $fileName,
-                'binary' => true
-            ]);
+            $this->r2Service->upload($completeFile, $fullPath);
 
             // Limpiar chunks de Redis
             $this->redis->del("upload:{$uploadId}:chunks");
             $this->redis->del("upload:{$uploadId}:progress");
 
             return [
-                'path' => $uploadedFile->result->url,
+                'path' => $fullPath,
                 'size' => strlen($completeFile),
                 'encryption_key' => config('app.encryption_key')
             ];
