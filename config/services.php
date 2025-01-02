@@ -37,4 +37,11 @@ return [
         'endpoint' => env('IMAGEKIT_URL_ENDPOINT'),
     ],
 
+    'r2' => [
+        'access_key' => env('R2_ACCESS_KEY'),
+        'secret_key' => env('R2_SECRET_KEY'),
+        'endpoint' => env('R2_ENDPOINT'),
+        'bucket' => env('R2_BUCKET'),
+        'public_url' => env('R2_PUBLIC_URL', 'https://pub-30394ee3d88d40f4b31a80834adc3bd7.r2.dev'),
+    ],
 ];
