@@ -39,7 +39,7 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL') . '/storage',
+            'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
             'throw' => false,
         ],
@@ -56,13 +56,6 @@ return [
             'throw' => false,
         ],
 
-        'r2' => [
-            'key' => env('R2_ACCESS_KEY'),
-            'secret' => env('R2_SECRET_KEY'),
-            'endpoint' => env('R2_ENDPOINT'),
-            'bucket' => env('R2_BUCKET'),
-            'public_url' => env('R2_PUBLIC_URL'),
-        ],
     ],
 
     /*
