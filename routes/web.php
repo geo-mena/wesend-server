@@ -28,4 +28,7 @@ Route::prefix('v1')->group(function () {
 
     Route::get('transfer/check/{token}', [TransferController::class, 'checkTransfer']);
     Route::post('transfer/validate/{token}', [TransferController::class, 'validatePassword']);
+
+    Route::delete('v1/upload/chunks/{uploadId}', [FileController::class, 'deleteChunks']);
+    Route::delete('v1/files/{id}', [FileController::class, 'deleteFile']);
 });
