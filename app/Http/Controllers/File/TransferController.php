@@ -125,6 +125,14 @@ class TransferController extends Controller
                 ->with('files')
                 ->firstOrFail();
 
+            if (!$request->has('download')) {
+                return redirect()->to(config('app.frontend_url') . '/send/' . $token);
+            }
+
+            if ($transfer->password && !$request->has('password')) {
+                return redirect()->to(config('app.frontend_url') . '/send/' . $token);
+            }
+
             // Verificar contraseña si existe
             if ($transfer->password) {
                 $request->validate([
@@ -178,6 +186,96 @@ class TransferController extends Controller
                 'success' => false,
                 'message' => 'Error downloading file'
             ], 500);
+        }
+    }
+
+    /**
+     * Método para verificar una transferencia
+     *
+     * @param string $token
+     * @return JsonResponse
+     */
+    public function checkTransfer($token)
+    {
+        try {
+            $transfer = Transfer::where('download_token', $token)
+                ->where('expires_at', '>', now())
+                ->with('files')
+                ->firstOrFail();
+
+            $file = $transfer->files()->first();
+
+            if ($transfer->password) {
+                return response()->json([
+                    'success' => true,
+                    'is_protected' => true
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'is_protected' => false,
+                'file_info' => [
+                    'name' => $file->original_name,
+                    'size' => $file->size,
+                    'expires_at' => $transfer->expires_at->format('d/m/Y H:i'),
+                    'download_url' => route('download', [
+                        'token' => $token,
+                        'download' => true
+                    ])
+                ]
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Transfer not found or expired'
+            ], 404);
+        }
+    }
+
+    /**
+     * Método para validar la contraseña de una transferencia
+     *
+     * @param Request $request
+     * @param string $token
+     * @return JsonResponse
+     */
+    public function validatePassword(Request $request, $token)
+    {
+        try {
+            $transfer = Transfer::where('download_token', $token)
+                ->where('expires_at', '>', now())
+                ->with('files')
+                ->firstOrFail();
+
+            if (!$transfer->password) {
+                throw new Exception('This transfer is not password protected');
+            }
+
+            if (!Hash::check($request->input('password'), $transfer->password)) {
+                throw new Exception('Invalid password');
+            }
+
+            $file = $transfer->files()->first();
+
+            return response()->json([
+                'success' => true,
+                'file_info' => [
+                    'name' => $file->original_name,
+                    'size' => $file->size,
+                    'expires_at' => $transfer->expires_at->format('d/m/Y H:i'),
+                    'download_url' => route('download', [
+                        'token' => $token,
+                        'password' => $request->input('password'),
+                        'download' => true
+                    ])
+                ]
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 401);
         }
     }
 }
