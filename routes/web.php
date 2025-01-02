@@ -25,4 +25,7 @@ Route::prefix('v1')->group(function () {
     Route::post('transfer/email', [TransferController::class, 'createEmailTransfer']);
     Route::post('transfer/link', [TransferController::class, 'createLinkTransfer']);
     Route::get('download/{token}', [TransferController::class, 'download'])->name('download');
+
+    Route::get('transfer/check/{token}', [TransferController::class, 'checkTransfer']);
+    Route::post('transfer/validate/{token}', [TransferController::class, 'validatePassword']);
 });
