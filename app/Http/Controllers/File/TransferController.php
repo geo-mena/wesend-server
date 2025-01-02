@@ -37,7 +37,7 @@ class TransferController extends Controller
             'sender_email' => 'required|email',
             'message' => 'nullable|string',
             'password' => 'nullable|string|min:6',
-            'expires_in' => 'nullable|in:1,3'
+            'expires_in' => 'nullable|in:1,2,3'
         ]);
 
         try {
@@ -90,8 +90,7 @@ class TransferController extends Controller
             $transfer = Transfer::create([
                 'type' => 'link',
                 'message' => $request->input('message'),
-                'password' => $request->has('password') ?
-                    Hash::make($request->input('password')) : null,
+                'password' => $request->has('password') ? Hash::make($request->input('password')) : null,
                 'download_token' => Str::random(32),
                 'expires_at' => now()->addDays($request->input('expires_in', 1))
             ]);
