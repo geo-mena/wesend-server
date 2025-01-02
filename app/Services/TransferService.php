@@ -9,14 +9,14 @@ use Illuminate\Support\Facades\Log;
 
 class TransferService
 {
-    protected $imagekitService;
+    protected $r2Service;
     protected $encryptionService;
 
     public function __construct(
-        ImagekitService $imagekitService,
+        R2Service $r2Service,
         EncryptionService $encryptionService
     ) {
-        $this->imagekitService = $imagekitService;
+        $this->r2Service = $r2Service;
         $this->encryptionService = $encryptionService;
     }
 
@@ -31,7 +31,7 @@ class TransferService
     {
         try {
             // Obtener archivo encriptado de ImageKit
-            $encryptedContent = $this->imagekitService->getFile($file->storage_path);
+            $encryptedContent = $this->r2Service->get($file->storage_path);
 
             // Desencriptar contenido
             $decryptedContent = $this->encryptionService->decrypt(
@@ -62,7 +62,7 @@ class TransferService
         foreach ($expiredTransfers as $transfer) {
             foreach ($transfer->files as $file) {
                 // Eliminar archivo de ImageKit
-                $this->imagekitService->deleteFile($file->storage_path);
+                $this->r2Service->delete($file->storage_path);
             }
 
             // Eliminar registros de la base de datos
