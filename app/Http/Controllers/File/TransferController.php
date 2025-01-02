@@ -44,8 +44,7 @@ class TransferController extends Controller
             $transfer = Transfer::create([
                 'type' => 'email',
                 'message' => $request->input('message'),
-                'password' => $request->has('password') ?
-                    Hash::make($request->input('password')) : null,
+                'password' => $request->has('password') ? Hash::make($request->input('password')) : null,
                 'sender_email' => $request->input('sender_email'),
                 'recipient_email' => $request->input('recipient_email'),
                 'download_token' => Str::random(32),
@@ -218,6 +217,7 @@ class TransferController extends Controller
                     'name' => $file->original_name,
                     'size' => $file->size,
                     'expires_at' => $transfer->expires_at->format('d/m/Y H:i'),
+                    'message' => $transfer->message,
                     'download_url' => route('download', [
                         'token' => $token,
                         'download' => true
@@ -263,6 +263,7 @@ class TransferController extends Controller
                     'name' => $file->original_name,
                     'size' => $file->size,
                     'expires_at' => $transfer->expires_at->format('d/m/Y H:i'),
+                    'message' => $transfer->message,
                     'download_url' => route('download', [
                         'token' => $token,
                         'password' => $request->input('password'),
