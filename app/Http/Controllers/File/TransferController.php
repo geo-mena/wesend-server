@@ -145,16 +145,10 @@ class TransferController extends Controller
                 }
             }
 
-
-            // Obtener archivo de ImageKit y desencriptar
-            $file = $transfer->files()->first();
-
-            if (!$file) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No file found'
-                ], 404);
-            }
+            // Obtener archivo de la transferencia
+            $file = $transfer->files()
+                ->where('id', $request->input('file_id'))
+                ->firstOrFail();
 
             $fileContent = $this->transferService->getDecryptedFile($file);
 
@@ -201,8 +195,6 @@ class TransferController extends Controller
                 ->with('files')
                 ->firstOrFail();
 
-            $file = $transfer->files()->first();
-
             if ($transfer->password) {
                 return response()->json([
                     'success' => true,
@@ -210,19 +202,24 @@ class TransferController extends Controller
                 ]);
             }
 
+            $files = $transfer->files->map(function ($file) use ($token) {
+                return [
+                    'name' => $file->original_name,
+                    'size' => $file->size,
+                    'download_url' => route('download', [
+                        'token' => $token,
+                        'download' => true,
+                        'file_id' => $file->id
+                    ])
+                ];
+            });
+
             return response()->json([
                 'success' => true,
                 'is_protected' => false,
-                'file_info' => [
-                    'name' => $file->original_name,
-                    'size' => $file->size,
-                    'expires_at' => $transfer->expires_at->format('d/m/Y H:i'),
-                    'message' => $transfer->message,
-                    'download_url' => route('download', [
-                        'token' => $token,
-                        'download' => true
-                    ])
-                ]
+                'file_info' => $files,
+                'message' => $transfer->message,
+                'expires_at' => $transfer->expires_at->format('d/m/Y H:i')
             ]);
         } catch (Exception $e) {
             return response()->json([
@@ -255,21 +252,24 @@ class TransferController extends Controller
                 throw new Exception('Invalid password');
             }
 
-            $file = $transfer->files()->first();
-
-            return response()->json([
-                'success' => true,
-                'file_info' => [
+            $files = $transfer->files->map(function ($file) use ($token, $request) {
+                return [
                     'name' => $file->original_name,
                     'size' => $file->size,
-                    'expires_at' => $transfer->expires_at->format('d/m/Y H:i'),
-                    'message' => $transfer->message,
                     'download_url' => route('download', [
                         'token' => $token,
                         'password' => $request->input('password'),
-                        'download' => true
+                        'download' => true,
+                        'file_id' => $file->id
                     ])
-                ]
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'file_info' => $files,
+                'message' => $transfer->message,
+                'expires_at' => $transfer->expires_at->format('d/m/Y H:i')
             ]);
         } catch (Exception $e) {
             return response()->json([
