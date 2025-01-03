@@ -157,7 +157,7 @@ class FileController extends Controller
         try {
             $file = File::findOrFail($id);
 
-            // Eliminar archivo de ImageKit
+            // Eliminar archivo de R2
             $this->uploadService->deleteFileFromStorage($file->storage_path);
 
             // Eliminar registro de la base de datos
