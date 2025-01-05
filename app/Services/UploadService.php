@@ -223,4 +223,72 @@ class UploadService
             throw $e;
         }
     }
+
+    /**
+     * Método para finalizar un batch de uploads
+     * 
+     * @param array $uploads
+     * @return array
+     */
+    public function finalizeBatch(array $uploads)
+    {
+        try {
+            $batchSize = 2;
+            $allResults = [];
+
+            foreach (array_chunk($uploads, $batchSize) as $batch) {
+                // Obtener chunks para este batch
+                $pipeline = $this->redis->pipeline();
+                foreach ($batch as $upload) {
+                    $pipeline->hgetall("upload:{$upload['uploadId']}:chunks");
+                }
+                $batchChunks = $pipeline->execute();
+
+                $filesToUpload = [];
+                foreach ($batchChunks as $index => $chunks) {
+                    if (empty($chunks)) continue;
+
+                    ksort($chunks);
+                    $completeFile = implode('', $chunks);
+
+                    $dateFolder = now()->format('Y/m/d');
+                    $fileName = uniqid('file_') . '.encrypted';
+                    $fullPath = "{$dateFolder}/{$fileName}";
+
+                    $filesToUpload[] = [
+                        'content' => $completeFile,
+                        'path' => $fullPath,
+                        'size' => strlen($completeFile)
+                    ];
+                }
+
+                // Subir este batch
+                $this->r2Service->uploadBatch($filesToUpload);
+
+                // Limpiar Redis para este batch
+                $pipeline = $this->redis->pipeline();
+                foreach ($batch as $upload) {
+                    $pipeline->del("upload:{$upload['uploadId']}:chunks");
+                    $pipeline->del("upload:{$upload['uploadId']}:progress");
+                }
+                $pipeline->execute();
+
+                $allResults = array_merge(
+                    $allResults,
+                    array_map(fn($file) => [
+                        'path' => $file['path'],
+                        'size' => $file['size'],
+                        'encryption_key' => config('app.encryption_key')
+                    ], $filesToUpload)
+                );
+            }
+
+            return $allResults;
+        } catch (Exception $e) {
+            foreach ($uploads as $upload) {
+                $this->deleteChunks($upload['uploadId']);
+            }
+            throw $e;
+        }
+    }
 }
