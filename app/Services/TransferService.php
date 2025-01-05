@@ -21,7 +21,7 @@ class TransferService
     }
 
     /**
-     * Método para subir un archivo a ImageKit
+     * Método para subir un archivo a R2
      *
      * @param File $file
      * @param string $content
@@ -30,7 +30,7 @@ class TransferService
     public function getDecryptedFile(File $file)
     {
         try {
-            // Obtener archivo encriptado de ImageKit
+            // Obtener archivo encriptado de R2
             $encryptedContent = $this->r2Service->get($file->storage_path);
 
             // Desencriptar contenido
