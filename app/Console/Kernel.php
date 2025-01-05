@@ -12,7 +12,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('files:clean-orphaned')->hourly();
+        $schedule->command('files:clean-orphaned')->everyMinute();
+        $schedule->command('files:clean-transfers')->everyMinute();
     }
 
     /**
