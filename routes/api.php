@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CronController;
 use App\Http\Controllers\File\FileController;
 use App\Http\Controllers\File\TransferController;
 use Illuminate\Http\Request;
@@ -26,4 +27,9 @@ Route::prefix('v1')->group(function () {
     Route::post('transfer/email', [TransferController::class, 'createEmailTransfer']);
     Route::post('transfer/link', [TransferController::class, 'createLinkTransfer']);
     Route::get('download/{token}', [TransferController::class, 'download'])->name('download');
+});
+
+Route::prefix('cron')->group(function () {
+    Route::get('clean-orphaned', [CronController::class, 'cleanOrphanedFiles']);
+    Route::get('clean-transfers', [CronController::class, 'cleanExpiredTransfers']);
 });

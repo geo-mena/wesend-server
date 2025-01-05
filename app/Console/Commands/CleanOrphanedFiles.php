@@ -16,6 +16,6 @@ class CleanOrphanedFiles extends Command
 
         $uploadService->cleanOrphanedFiles();
 
-        $this->info('Done!');
+        $this->info('Orphaned files cleaned successfully');
     }
 }

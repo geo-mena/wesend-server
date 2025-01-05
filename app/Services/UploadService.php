@@ -117,7 +117,6 @@ class UploadService
                 'encryption_key' => config('app.encryption_key')
             ];
         } catch (Exception $e) {
-            Log::error('Error in finalizeUpload: ' . $e->getMessage());
 
             $this->deleteChunks($uploadId);
             if (isset($fullPath)) {
@@ -157,12 +156,12 @@ class UploadService
         try {
             // Eliminar chunks
             $this->redis->del("upload:{$uploadId}:chunks");
+
             // Eliminar progreso
             $this->redis->del("upload:{$uploadId}:progress");
 
             return true;
         } catch (Exception $e) {
-            Log::error('Error deleting chunks: ' . $e->getMessage());
             throw $e;
         }
     }
@@ -176,11 +175,10 @@ class UploadService
     public function deleteFileFromStorage(string $filePath)
     {
         try {
-            // Eliminar archivo de R2
             $this->r2Service->delete($filePath);
+            
             return true;
         } catch (Exception $e) {
-            Log::error('Error deleting file from storage: ' . $e->getMessage());
             throw $e;
         }
     }
@@ -203,6 +201,8 @@ class UploadService
 
     /**
      * Método para limpiar archivos temporales expirados
+     * 
+     * @return void
      */
     public function cleanOrphanedFiles()
     {
@@ -220,7 +220,75 @@ class UploadService
                 }
             }
         } catch (Exception $e) {
-            Log::error('Error cleaning orphaned files: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Método para finalizar un batch de uploads
+     * 
+     * @param array $uploads
+     * @return array
+     */
+    public function finalizeBatch(array $uploads)
+    {
+        try {
+            $batchSize = 2;
+            $allResults = [];
+
+            foreach (array_chunk($uploads, $batchSize) as $batch) {
+                // Obtener chunks para este batch
+                $pipeline = $this->redis->pipeline();
+                foreach ($batch as $upload) {
+                    $pipeline->hgetall("upload:{$upload['uploadId']}:chunks");
+                }
+                $batchChunks = $pipeline->execute();
+
+                $filesToUpload = [];
+                foreach ($batchChunks as $index => $chunks) {
+                    if (empty($chunks)) continue;
+
+                    ksort($chunks);
+                    $completeFile = implode('', $chunks);
+
+                    $dateFolder = now()->format('Y/m/d');
+                    $fileName = uniqid('file_') . '.encrypted';
+                    $fullPath = "{$dateFolder}/{$fileName}";
+
+                    $filesToUpload[] = [
+                        'content' => $completeFile,
+                        'path' => $fullPath,
+                        'size' => strlen($completeFile)
+                    ];
+                }
+
+                // Subir este batch
+                $this->r2Service->uploadBatch($filesToUpload);
+
+                // Limpiar Redis para este batch
+                $pipeline = $this->redis->pipeline();
+                foreach ($batch as $upload) {
+                    $pipeline->del("upload:{$upload['uploadId']}:chunks");
+                    $pipeline->del("upload:{$upload['uploadId']}:progress");
+                }
+                $pipeline->execute();
+
+                $allResults = array_merge(
+                    $allResults,
+                    array_map(fn($file) => [
+                        'path' => $file['path'],
+                        'size' => $file['size'],
+                        'encryption_key' => config('app.encryption_key')
+                    ], $filesToUpload)
+                );
+            }
+
+            return $allResults;
+        } catch (Exception $e) {
+            foreach ($uploads as $upload) {
+                $this->deleteChunks($upload['uploadId']);
+            }
+            throw $e;
         }
     }
 }

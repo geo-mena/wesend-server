@@ -31,4 +31,6 @@ Route::prefix('v1')->group(function () {
 
     Route::delete('upload/chunks/{uploadId}', [FileController::class, 'deleteChunks']);
     Route::delete('files/{id}', [FileController::class, 'deleteFile']);
+
+    Route::post('upload/finalize-batch', [FileController::class, 'finalizeBatch']);
 });

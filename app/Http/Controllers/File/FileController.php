@@ -42,15 +42,6 @@ class FileController extends Controller
             $totalChunks = $request->input('totalChunks');
             $uploadId = $request->input('uploadId');
 
-            // Encriptar chunk
-            // $encryptedChunk = $this->encryptionService->encrypt(
-            //     file_get_contents($chunk->getPathname()),
-            //     config('app.encryption_key')
-            // );
-
-            // Almacenar chunk en Redis
-            // $this->uploadService->storeChunk($uploadId, $chunkNumber, $encryptedChunk, $totalChunks);
-
             // Leer el contenido del chunk
             $chunkContent = file_get_contents($chunk->getPathname());
 
@@ -114,7 +105,6 @@ class FileController extends Controller
                 'message' => 'File uploaded successfully'
             ]);
         } catch (Exception $e) {
-            Log::debug('Error finalizing upload: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Error finalizing upload'
@@ -171,6 +161,58 @@ class FileController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error deleting file'
+            ], 500);
+        }
+    }
+
+    /**
+     * Método para subir varios archivos a la vez
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function finalizeBatch(Request $request)
+    {
+        $request->validate([
+            'uploads' => 'required|array',
+            'uploads.*.uploadId' => 'required|string',
+            'uploads.*.filename' => 'required|string',
+            'uploads.*.mimeType' => 'required|string'
+        ]);
+
+        try {
+            // Procesar todos los archivos de una vez
+            $finalFiles = $this->uploadService->finalizeBatch($request->input('uploads'));
+
+            // Crear registros en la base de datos en batch
+            $files = collect($request->input('uploads'))->map(function ($upload, $index) use ($finalFiles) {
+                return File::create([
+                    'original_name' => $upload['filename'],
+                    'storage_path' => $finalFiles[$index]['path'],
+                    'size' => $finalFiles[$index]['size'],
+                    'mime_type' => $upload['mimeType'],
+                    'encryption_key' => $finalFiles[$index]['encryption_key'],
+                    'expires_at' => now()->addDays(3)
+                ]);
+            });
+
+            $results = $files->map(function ($file, $index) use ($request) {
+                return [
+                    'uploadId' => $request->input('uploads')[$index]['uploadId'],
+                    'fileId' => $file->id,
+                    'success' => true
+                ];
+            })->all();
+
+            return response()->json([
+                'success' => true,
+                'files' => $results,
+                'message' => 'Files uploaded successfully'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error finalizing uploads'
             ], 500);
         }
     }
