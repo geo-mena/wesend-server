@@ -42,15 +42,6 @@ class FileController extends Controller
             $totalChunks = $request->input('totalChunks');
             $uploadId = $request->input('uploadId');
 
-            // Encriptar chunk
-            // $encryptedChunk = $this->encryptionService->encrypt(
-            //     file_get_contents($chunk->getPathname()),
-            //     config('app.encryption_key')
-            // );
-
-            // Almacenar chunk en Redis
-            // $this->uploadService->storeChunk($uploadId, $chunkNumber, $encryptedChunk, $totalChunks);
-
             // Leer el contenido del chunk
             $chunkContent = file_get_contents($chunk->getPathname());
 
@@ -114,7 +105,6 @@ class FileController extends Controller
                 'message' => 'File uploaded successfully'
             ]);
         } catch (Exception $e) {
-            Log::debug('Error finalizing upload: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Error finalizing upload'

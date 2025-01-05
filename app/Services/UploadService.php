@@ -117,7 +117,6 @@ class UploadService
                 'encryption_key' => config('app.encryption_key')
             ];
         } catch (Exception $e) {
-            Log::error('Error in finalizeUpload: ' . $e->getMessage());
 
             $this->deleteChunks($uploadId);
             if (isset($fullPath)) {
@@ -157,12 +156,12 @@ class UploadService
         try {
             // Eliminar chunks
             $this->redis->del("upload:{$uploadId}:chunks");
+
             // Eliminar progreso
             $this->redis->del("upload:{$uploadId}:progress");
 
             return true;
         } catch (Exception $e) {
-            Log::error('Error deleting chunks: ' . $e->getMessage());
             throw $e;
         }
     }
@@ -176,11 +175,10 @@ class UploadService
     public function deleteFileFromStorage(string $filePath)
     {
         try {
-            // Eliminar archivo de R2
             $this->r2Service->delete($filePath);
+            
             return true;
         } catch (Exception $e) {
-            Log::error('Error deleting file from storage: ' . $e->getMessage());
             throw $e;
         }
     }
@@ -220,7 +218,7 @@ class UploadService
                 }
             }
         } catch (Exception $e) {
-            Log::error('Error cleaning orphaned files: ' . $e->getMessage());
+            throw $e;
         }
     }
 }
