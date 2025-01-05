@@ -201,6 +201,8 @@ class UploadService
 
     /**
      * Método para limpiar archivos temporales expirados
+     * 
+     * @return void
      */
     public function cleanOrphanedFiles()
     {

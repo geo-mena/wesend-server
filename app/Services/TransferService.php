@@ -41,11 +41,6 @@ class TransferService
 
             return $decryptedContent;
         } catch (Exception $e) {
-            Log::error('Error in getDecryptedFile', [
-                'file_id' => $file->id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
             throw $e;
         }
     }
@@ -57,17 +52,21 @@ class TransferService
      */
     public function deleteExpiredTransfers()
     {
-        $expiredTransfers = Transfer::where('expires_at', '<', now())->get();
+        try {
+            $expiredTransfers = Transfer::where('expires_at', '<', now())->get();
 
-        foreach ($expiredTransfers as $transfer) {
-            foreach ($transfer->files as $file) {
-                // Eliminar archivo de ImageKit
-                $this->r2Service->delete($file->storage_path);
+            foreach ($expiredTransfers as $transfer) {
+                foreach ($transfer->files as $file) {
+                    // Eliminar archivo de R2
+                    $this->r2Service->delete($file->storage_path);
+                }
+
+                // Eliminar registros de la base de datos
+                $transfer->files()->delete();
+                $transfer->delete();
             }
-
-            // Eliminar registros de la base de datos
-            $transfer->files()->delete();
-            $transfer->delete();
+        } catch (Exception $e) {
+            throw $e;
         }
     }
 }
