@@ -164,4 +164,56 @@ class FileController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Método para subir varios archivos a la vez
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function finalizeBatch(Request $request)
+    {
+        $request->validate([
+            'uploads' => 'required|array',
+            'uploads.*.uploadId' => 'required|string',
+            'uploads.*.filename' => 'required|string',
+            'uploads.*.mimeType' => 'required|string'
+        ]);
+
+        try {
+            // Procesar todos los archivos de una vez
+            $finalFiles = $this->uploadService->finalizeBatch($request->input('uploads'));
+
+            // Crear registros en la base de datos en batch
+            $files = collect($request->input('uploads'))->map(function ($upload, $index) use ($finalFiles) {
+                return File::create([
+                    'original_name' => $upload['filename'],
+                    'storage_path' => $finalFiles[$index]['path'],
+                    'size' => $finalFiles[$index]['size'],
+                    'mime_type' => $upload['mimeType'],
+                    'encryption_key' => $finalFiles[$index]['encryption_key'],
+                    'expires_at' => now()->addDays(3)
+                ]);
+            });
+
+            $results = $files->map(function ($file, $index) use ($request) {
+                return [
+                    'uploadId' => $request->input('uploads')[$index]['uploadId'],
+                    'fileId' => $file->id,
+                    'success' => true
+                ];
+            })->all();
+
+            return response()->json([
+                'success' => true,
+                'files' => $results,
+                'message' => 'Files uploaded successfully'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error finalizing uploads'
+            ], 500);
+        }
+    }
 }
