@@ -12,10 +12,10 @@ class CleanOrphanedFiles extends Command
 
     public function handle(UploadService $uploadService)
     {
-        $this->info('Cleaning orphaned files...');
+        $this->info('🚀 Starting cleanup of orphaned files...');
 
         $uploadService->cleanOrphanedFiles();
 
-        $this->info('Orphaned files cleaned successfully');
+        $this->info('✅ Orphaned files cleaned successfully');
     }
 }
