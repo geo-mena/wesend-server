@@ -47,7 +47,7 @@ class TransferController extends Controller
                 'password' => $request->has('password') ? Hash::make($request->input('password')) : null,
                 'sender_email' => $request->input('sender_email'),
                 'recipient_email' => $request->input('recipient_email'),
-                'download_token' => Str::random(32),
+                'download_token' => Str::uuid(),
                 'expires_at' => now()->addDays($request->input('expires_in', 1))
             ]);
 
@@ -90,7 +90,7 @@ class TransferController extends Controller
                 'type' => 'link',
                 'message' => $request->input('message'),
                 'password' => $request->has('password') ? Hash::make($request->input('password')) : null,
-                'download_token' => Str::random(32),
+                'download_token' => Str::uuid(),
                 'expires_at' => now()->addDays($request->input('expires_in', 1))
             ]);
 
