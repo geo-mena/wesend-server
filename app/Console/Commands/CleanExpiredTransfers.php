@@ -12,10 +12,10 @@ class CleanExpiredTransfers extends Command
 
     public function handle(TransferService $transferService)
     {
-        $this->info('Starting cleanup of expired transfers...');
+        $this->info('🚀 Starting cleanup of expired transfers...');
 
         $transferService->deleteExpiredTransfers();
 
-        $this->info('Expired transfers cleaned successfully');
+        $this->info('✅ Expired transfers cleaned successfully');
     }
 }
