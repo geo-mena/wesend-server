@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use Exception;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
 class UploadService
@@ -22,7 +21,7 @@ class UploadService
     }
 
     /**
-     * Método para almacenar un chunk de un archivo
+     * 🔒️ Método para almacenar un chunk de un archivo
      *
      * @param string $uploadId
      * @param int $chunkNumber
@@ -62,7 +61,7 @@ class UploadService
     }
 
     /**
-     * Método para finalizar un upload
+     * 🔒️ Método para finalizar un upload
      *
      * @param string $uploadId
      * @return array
@@ -128,7 +127,7 @@ class UploadService
     }
 
     /**
-     * Método para actualizar el progreso de un upload
+     * 🔒️ Método para actualizar el progreso de un upload
      *
      * @param string $uploadId
      * @param int $currentChunk
@@ -146,7 +145,7 @@ class UploadService
     }
 
     /**
-     * Método para eliminar los chunks de un upload
+     * 🔒️ Método para eliminar los chunks de un upload
      *
      * @param string $uploadId
      * @return bool
@@ -167,7 +166,7 @@ class UploadService
     }
 
     /**
-     * Método para eliminar un archivo de R2
+     * 🔒️ Método para eliminar un archivo de R2
      *
      * @param string $filePath
      * @return bool
@@ -184,7 +183,7 @@ class UploadService
     }
 
     /**
-     * Método para obtener el progreso de un upload
+     * 🔒️ Método para obtener el progreso de un upload
      *
      * @param string $uploadId
      * @return array
@@ -200,7 +199,7 @@ class UploadService
     }
 
     /**
-     * Método para limpiar archivos temporales expirados
+     * 🔒️ Método para limpiar archivos temporales expirados
      * 
      * @return void
      */
@@ -225,10 +224,11 @@ class UploadService
     }
 
     /**
-     * Método para finalizar un batch de uploads
+     * 🔒️ Método para finalizar un batch de uploads
      * 
      * @param array $uploads
      * @return array
+     * @throws Exception
      */
     public function finalizeBatch(array $uploads)
     {
