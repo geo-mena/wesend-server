@@ -22,10 +22,11 @@ class FileController extends Controller
     }
 
     /**
-     * Método para subir un chunk de un archivo
+     * 🌱 Método para subir un chunk de un archivo
      *
      * @param Request $request
      * @return JsonResponse
+     * @throws Exception
      */
     public function upload(Request $request)
     {
@@ -66,10 +67,11 @@ class FileController extends Controller
     }
 
     /**
-     * Método para finalizar la subida de un archivo
+     * 🌱 Método para finalizar la subida de un archivo
      *
      * @param Request $request
      * @return JsonResponse
+     * @throws Exception
      */
     public function finalize(Request $request)
     {
@@ -113,10 +115,11 @@ class FileController extends Controller
     }
 
     /**
-     * Método para eliminar los chunks de un archivo
+     * 🌱 Método para eliminar los chunks de un archivo
      *
      * @param string $uploadId
      * @return JsonResponse
+     * @throws Exception
      */
     public function deleteChunks($uploadId)
     {
@@ -137,10 +140,11 @@ class FileController extends Controller
     }
 
     /**
-     * Método para eliminar un archivo
+     * 🌱 Método para eliminar un archivo
      *
      * @param int $id
      * @return JsonResponse
+     * @throws Exception
      */
     public function deleteFile($id)
     {
@@ -166,10 +170,11 @@ class FileController extends Controller
     }
 
     /**
-     * Método para subir varios archivos a la vez
+     * 🌱 Método para subir varios archivos a la vez
      *
      * @param Request $request
      * @return JsonResponse
+     * @throws Exception
      */
     public function finalizeBatch(Request $request)
     {
