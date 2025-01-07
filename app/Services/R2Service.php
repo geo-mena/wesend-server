@@ -36,6 +36,13 @@ class R2Service
         ]);
     }
 
+    /**
+     * 🔒️ Subir archivos en batch
+     *
+     * @param array $files
+     * @return array
+     * @throws Exception
+     */
     public function uploadBatch(array $files): array
     {
         try {
@@ -72,6 +79,13 @@ class R2Service
         }
     }
 
+    /**
+     * 🔒️ Obtener archivos en batch
+     *
+     * @param array $paths
+     * @return array
+     * @throws Exception
+     */
     private function createStream($content)
     {
         $stream = fopen('php://temp', 'r+');
@@ -80,6 +94,13 @@ class R2Service
         return $stream;
     }
 
+    /**
+     * 🔒️ Obtener archivos en batch
+     *
+     * @param array $paths
+     * @return array
+     * @throws Exception
+     */
     public function upload(string $content, string $path): string
     {
         try {
@@ -95,6 +116,13 @@ class R2Service
         }
     }
 
+    /**
+     * 🔒️ Obtener archivos en batch
+     *
+     * @param array $paths
+     * @return array
+     * @throws Exception
+     */
     public function get(string $path): string
     {
         try {
@@ -109,6 +137,13 @@ class R2Service
         }
     }
 
+    /**
+     * 🔒️ Eliminar archivos en batch
+     *
+     * @param array $paths
+     * @return void
+     * @throws Exception
+     */
     public function delete(string $path): void
     {
         try {
