@@ -21,9 +21,10 @@ class CronController extends Controller
     }
 
     /**
-     * Clean orphaned files
+     * 🚩 Clean orphaned files
      *
      * @return JsonResponse
+     * @throws Exception
      */
     public function cleanOrphanedFiles(): JsonResponse
     {
@@ -43,9 +44,10 @@ class CronController extends Controller
     }
 
     /**
-     * Clean expired transfers
+     * 🚩 Clean expired transfers
      *
      * @return JsonResponse
+     * @throws Exception
      */
     public function cleanExpiredTransfers(): JsonResponse
     {

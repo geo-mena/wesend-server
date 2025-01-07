@@ -23,10 +23,11 @@ class TransferController extends Controller
     }
 
     /**
-     * Método para crear una transferencia por email
+     * 🌱 Método para crear una transferencia por email
      *
      * @param Request $request
      * @return JsonResponse
+     * @throws Exception
      */
     public function createEmailTransfer(Request $request)
     {
@@ -70,10 +71,11 @@ class TransferController extends Controller
     }
 
     /**
-     * Método para crear una transferencia por enlace
+     * 🌱 Método para crear una transferencia por enlace
      *
      * @param Request $request
      * @return JsonResponse
+     * @throws Exception
      */
     public function createLinkTransfer(Request $request)
     {
@@ -109,11 +111,12 @@ class TransferController extends Controller
     }
 
     /**
-     * Método para descargar un archivo
+     * 🌱 Método para descargar un archivo
      *
      * @param string $token
      * @param Request $request
      * @return JsonResponse
+     * @throws Exception
      */
     public function download($token, Request $request)
     {
@@ -169,11 +172,6 @@ class TransferController extends Controller
 
             return response($fileContent, 200, $headers);
         } catch (Exception $e) {
-            Log::error('Download error', [
-                'token' => $token,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
             return response()->json([
                 'success' => false,
                 'message' => 'Error downloading file'
@@ -182,10 +180,11 @@ class TransferController extends Controller
     }
 
     /**
-     * Método para verificar una transferencia
+     * 🌱 Método para verificar una transferencia
      *
      * @param string $token
      * @return JsonResponse
+     * @throws Exception
      */
     public function checkTransfer($token)
     {
@@ -230,11 +229,12 @@ class TransferController extends Controller
     }
 
     /**
-     * Método para validar la contraseña de una transferencia
+     * 🌱 Método para validar la contraseña de una transferencia
      *
      * @param Request $request
      * @param string $token
      * @return JsonResponse
+     * @throws Exception
      */
     public function validatePassword(Request $request, $token)
     {

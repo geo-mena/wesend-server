@@ -3,14 +3,13 @@
 namespace App\Services;
 
 use Exception;
-use Illuminate\Support\Facades\Log;
 
 class EncryptionService
 {
     private string $cipher = 'aes-256-cbc';
 
     /**
-     * Método para encriptar un string
+     * 🔒️ Método para encriptar un string
      *
      * @param string $data
      * @param string $key
@@ -38,15 +37,12 @@ class EncryptionService
 
             return $result;
         } catch (Exception $e) {
-            Log::error('Encryption error', [
-                'error' => $e->getMessage()
-            ]);
             throw $e;
         }
     }
 
     /**
-     * Método para desencriptar un string
+     * 🔒️ Método para desencriptar un string
      *
      * @param string $data
      * @param string $key
@@ -74,9 +70,6 @@ class EncryptionService
 
             return $decrypted;
         } catch (Exception $e) {
-            Log::error('Decryption error', [
-                'error' => $e->getMessage()
-            ]);
             throw $e;
         }
     }
