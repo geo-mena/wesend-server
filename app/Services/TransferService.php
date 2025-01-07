@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\File;
 use App\Models\Transfer;
 use Exception;
-use Illuminate\Support\Facades\Log;
 
 class TransferService
 {
@@ -21,7 +20,7 @@ class TransferService
     }
 
     /**
-     * Método para subir un archivo a R2
+     * 🔒️ Método para subir un archivo a R2
      *
      * @param File $file
      * @param string $content
@@ -46,7 +45,7 @@ class TransferService
     }
 
     /**
-     * Método para eliminar transferencias expiradas
+     * 🔒️ Método para eliminar transferencias expiradas
      *
      * @return void
      */
