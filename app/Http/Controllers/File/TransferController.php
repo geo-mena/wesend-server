@@ -84,7 +84,7 @@ class TransferController extends Controller
             'files.*' => 'exists:files,id',
             'message' => 'nullable|string',
             'password' => 'nullable|string|min:6',
-            'expires_in' => 'nullable|in:1,3'
+            'expires_in' => 'nullable|in:1,2,3'
         ]);
 
         try {
