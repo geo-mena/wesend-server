@@ -17,10 +17,12 @@ class Transfer extends Model
         'recipient_email',
         'download_token',
         'expires_at',
+        'single_download'
     ];
 
     protected $casts = [
-        'expires_at' => 'datetime'
+        'expires_at' => 'datetime',
+        'single_download' => 'boolean'
     ];
 
     public function files()

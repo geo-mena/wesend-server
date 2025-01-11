@@ -5,13 +5,12 @@ namespace App\Http\Controllers\File;
 use App\Http\Controllers\Controller;
 use App\Jobs\SendEmailNotificationJob;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use App\Services\TransferService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\Transfer;
 use Exception;
-
-use Illuminate\Support\Facades\Log;
 
 class TransferController extends Controller
 {
@@ -23,7 +22,7 @@ class TransferController extends Controller
     }
 
     /**
-     * 🌱 Método para crear una transferencia por email
+     *  🚧 Método para crear una transferencia por email
      *
      * @param Request $request
      * @return JsonResponse
@@ -84,7 +83,8 @@ class TransferController extends Controller
             'files.*' => 'exists:files,id',
             'message' => 'nullable|string',
             'password' => 'nullable|string|min:6',
-            'expires_in' => 'nullable|in:1,3'
+            'expires_in' => 'nullable|in:1,2,3',
+            'single_download' => 'nullable|boolean'
         ]);
 
         try {
@@ -93,7 +93,9 @@ class TransferController extends Controller
                 'message' => $request->input('message'),
                 'password' => $request->has('password') ? Hash::make($request->input('password')) : null,
                 'download_token' => Str::uuid(),
-                'expires_at' => now()->addDays($request->input('expires_in', 1))
+                'expires_at' => now()->addDays($request->input('expires_in', 1)),
+                'single_download' => $request->input('single_download', false),
+                'downloaded' => false
             ]);
 
             $transfer->files()->attach($request->input('files'));
@@ -124,6 +126,7 @@ class TransferController extends Controller
             $transfer = Transfer::where('download_token', $token)
                 ->where('expires_at', '>', now())
                 ->with('files')
+                ->lockForUpdate()
                 ->firstOrFail();
 
             if (!$request->has('download')) {
@@ -134,7 +137,15 @@ class TransferController extends Controller
                 return redirect()->to(config('app.frontend_url') . '/send/' . $token);
             }
 
-            // Verificar contraseña si existe
+            //! Verificar si es descarga única y ya fue descargada
+            if ($transfer->single_download && $transfer->downloaded) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Este enlace ya ha sido utilizado'
+                ], 403);
+            }
+
+            //! Verificar contraseña si existe
             if ($transfer->password) {
                 $request->validate([
                     'password' => 'required|string'
@@ -162,6 +173,19 @@ class TransferController extends Controller
                 ], 500);
             }
 
+            //! Marcar como descargado si es single_download
+            if ($transfer->single_download) {
+                $transfer->downloaded = true;
+                $transfer->save();
+
+                // Programar la limpieza para después de enviar el archivo
+                register_shutdown_function(function () use ($transfer) {
+                    $this->transferService->cleanupSingleDownload($transfer);
+                });
+            }
+
+            DB::commit();
+
             $headers = [
                 'Content-Type' => $file->mime_type,
                 'Content-Disposition' => 'inline; filename="' . $file->original_name . '"',
@@ -172,6 +196,7 @@ class TransferController extends Controller
 
             return response($fileContent, 200, $headers);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => 'Error downloading file'
@@ -194,10 +219,20 @@ class TransferController extends Controller
                 ->with('files')
                 ->firstOrFail();
 
+            //! Verificar si es descarga única y ya fue descargado
+            if ($transfer->single_download && $transfer->downloaded) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Este enlace ya ha sido utilizado'
+                ], 403);
+            }
+
             if ($transfer->password) {
                 return response()->json([
                     'success' => true,
-                    'is_protected' => true
+                    'is_protected' => true,
+                    'single_download' => $transfer->single_download,
+                    'downloaded' => $transfer->downloaded
                 ]);
             }
 
@@ -218,7 +253,9 @@ class TransferController extends Controller
                 'is_protected' => false,
                 'file_info' => $files,
                 'message' => $transfer->message,
-                'expires_at' => $transfer->expires_at->format('d/m/Y H:i')
+                'expires_at' => $transfer->expires_at->format('d/m/Y H:i'),
+                'single_download' => $transfer->single_download,
+                'downloaded' => $transfer->downloaded
             ]);
         } catch (Exception $e) {
             return response()->json([
@@ -269,7 +306,9 @@ class TransferController extends Controller
                 'success' => true,
                 'file_info' => $files,
                 'message' => $transfer->message,
-                'expires_at' => $transfer->expires_at->format('d/m/Y H:i')
+                'expires_at' => $transfer->expires_at->format('d/m/Y H:i'),
+                'single_download' => $transfer->single_download,
+                'downloaded' => $transfer->downloaded
             ]);
         } catch (Exception $e) {
             return response()->json([
