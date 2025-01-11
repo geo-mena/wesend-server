@@ -68,4 +68,28 @@ class TransferService
             throw $e;
         }
     }
+
+    /**
+     * 🔒️ Método para limpiar archivos después de una descarga única
+     *
+     * @param Transfer $transfer
+     * @return void
+     */
+    public function cleanupSingleDownload(Transfer $transfer)
+    {
+        try {
+            if ($transfer->single_download && $transfer->downloaded) {
+                // Eliminar archivos de R2
+                foreach ($transfer->files as $file) {
+                    $this->r2Service->delete($file->storage_path);
+                }
+
+                // Eliminar registros de la base de datos
+                $transfer->files()->delete();
+                $transfer->delete();
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
 }

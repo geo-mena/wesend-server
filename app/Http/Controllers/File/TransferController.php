@@ -173,11 +173,18 @@ class TransferController extends Controller
                 ], 500);
             }
 
-            // Marcar como descargado si es single_download
+            //! Marcar como descargado si es single_download
             if ($transfer->single_download) {
                 $transfer->downloaded = true;
                 $transfer->save();
+
+                // Programar la limpieza para después de enviar el archivo
+                register_shutdown_function(function () use ($transfer) {
+                    $this->transferService->cleanupSingleDownload($transfer);
+                });
             }
+
+            DB::commit();
 
             $headers = [
                 'Content-Type' => $file->mime_type,
@@ -186,8 +193,6 @@ class TransferController extends Controller
                 'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
                 'Pragma' => 'no-cache'
             ];
-
-            DB::commit();
 
             return response($fileContent, 200, $headers);
         } catch (Exception $e) {
