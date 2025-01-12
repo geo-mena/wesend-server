@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Services\UploadService;
+use Exception;
 
 class CleanOrphanedFiles extends Command
 {
@@ -12,10 +13,15 @@ class CleanOrphanedFiles extends Command
 
     public function handle(UploadService $uploadService)
     {
-        $this->info('🚀 Starting cleanup of orphaned files...');
+        try {
+            $this->info('🚀 Starting cleanup of orphaned files...');
 
-        $uploadService->cleanOrphanedFiles();
+            $uploadService->cleanOrphanedFiles();
 
-        $this->info('✅ Orphaned files cleaned successfully');
+            $this->info('✅ Orphaned files cleaned successfully');
+        } catch (Exception $e) {
+            $this->error('❌ Error: ' . $e->getMessage());
+            return 1;
+        }
     }
 }

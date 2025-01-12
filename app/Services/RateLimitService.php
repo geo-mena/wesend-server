@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Exception;
 use Illuminate\Support\Facades\Redis;
 
 class RateLimitService
@@ -73,5 +74,27 @@ class RateLimitService
         $this->redis->expire($key, $period);
 
         $this->redis->exec();
+    }
+
+    /**
+     * 🚩 Limpia registros huérfanos
+     * 
+     * @return void
+     * @throws Exception
+     */
+    public function cleanOrphanedRecords(): void
+    {
+        try {
+            $pattern = 'upload_limit:*';
+            $keys = $this->redis->keys($pattern);
+
+            foreach ($keys as $key) {
+                if ($this->redis->ttl($key) <= 0) {
+                    $this->redis->del($key);
+                }
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
     }
 }
