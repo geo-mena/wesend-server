@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Services\TransferService;
+use Exception;
 use Illuminate\Console\Command;
 
 class CleanExpiredTransfers extends Command
@@ -12,10 +13,15 @@ class CleanExpiredTransfers extends Command
 
     public function handle(TransferService $transferService)
     {
-        $this->info('🚀 Starting cleanup of expired transfers...');
+        try {
+            $this->info('🚀 Starting cleanup of expired transfers...');
 
-        $transferService->deleteExpiredTransfers();
+            $transferService->deleteExpiredTransfers();
 
-        $this->info('✅ Expired transfers cleaned successfully');
+            $this->info('✅ Expired transfers cleaned successfully');
+        } catch (Exception $e) {
+            $this->error('❌ Error: ' . $e->getMessage());
+            return 1;
+        }
     }
 }

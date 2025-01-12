@@ -7,6 +7,7 @@ use App\Services\UploadService;
 use App\Services\EncryptionService;
 use Illuminate\Http\Request;
 use App\Models\File;
+use App\Services\RateLimitService;
 use Exception;
 use Illuminate\Support\Facades\Log;
 
@@ -14,11 +15,16 @@ class FileController extends Controller
 {
     protected $uploadService;
     protected $encryptionService;
+    protected $rateLimitService;
 
-    public function __construct(UploadService $uploadService, EncryptionService $encryptionService)
-    {
+    public function __construct(
+        UploadService $uploadService,
+        EncryptionService $encryptionService,
+        RateLimitService $rateLimitService
+    ) {
         $this->uploadService = $uploadService;
         $this->encryptionService = $encryptionService;
+        $this->rateLimitService = $rateLimitService;
     }
 
     /**
@@ -182,10 +188,32 @@ class FileController extends Controller
             'uploads' => 'required|array',
             'uploads.*.uploadId' => 'required|string',
             'uploads.*.filename' => 'required|string',
-            'uploads.*.mimeType' => 'required|string'
+            'uploads.*.mimeType' => 'required|string',
+            'uploads.*.totalSize' => 'required|integer'
         ]);
 
         try {
+            //! Calcular tamaño total del batch
+            $totalBatchSize = collect($request->input('uploads'))
+                ->sum(function ($upload) {
+                    return $upload['totalSize'];
+                });
+
+            //! Verificar límite antes de procesar
+            $checkLimit = $this->rateLimitService->canUpload(
+                $request->ip(),
+                $totalBatchSize
+            );
+
+            if (!$checkLimit['allowed']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $checkLimit['message'],
+                    'remaining_bytes' => $checkLimit['remaining_bytes'],
+                    'reset_in' => $checkLimit['reset_in']
+                ], 429);
+            }
+
             // Procesar todos los archivos de una vez
             $finalFiles = $this->uploadService->finalizeBatch($request->input('uploads'));
 
@@ -200,6 +228,12 @@ class FileController extends Controller
                     'expires_at' => now()->addDays(3)
                 ]);
             });
+
+            //! Registrar uso total al finalizar
+            $this->rateLimitService->trackUsage(
+                $request->ip(),
+                $totalBatchSize
+            );
 
             $results = $files->map(function ($file, $index) use ($request) {
                 return [
@@ -218,6 +252,39 @@ class FileController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error finalizing uploads'
+            ], 500);
+        }
+    }
+
+    /**
+     * 🔖 Verifica si se puede realizar una subida basado en el límite de uso
+     * 
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function checkLimit(Request $request)
+    {
+        $request->validate([
+            'totalSize' => 'required|integer|min:1'
+        ]);
+
+        try {
+            $checkLimit = $this->rateLimitService->canUpload(
+                $request->ip(),
+                $request->input('totalSize')
+            );
+
+            return response()->json([
+                'success' => true,
+                'allowed' => $checkLimit['allowed'],
+                'remaining_bytes' => $checkLimit['remaining_bytes'],
+                'reset_in' => $checkLimit['reset_in'],
+                'message' => $checkLimit['message'] ?? null
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al verificar límite de subida'
             ], 500);
         }
     }

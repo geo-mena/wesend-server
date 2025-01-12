@@ -33,4 +33,7 @@ Route::prefix('v1')->group(function () {
     Route::delete('files/{id}', [FileController::class, 'deleteFile']);
 
     Route::post('upload/finalize-batch', [FileController::class, 'finalizeBatch']);
+
+    //! Check if an IP can upload more files
+    Route::post('upload/check-limit', [FileController::class, 'checkLimit']);
 });
