@@ -23,18 +23,19 @@ class TransferService
      * 🔒️ Método para subir un archivo a R2
      *
      * @param File $file
-     * @param string $content
      * @return string
+     * @throws Exception
      */
     public function getDecryptedFile(File $file)
     {
         try {
-            // Obtener archivo encriptado de R2
             $encryptedContent = $this->r2Service->get($file->storage_path);
 
-            // Desencriptar contenido
+            $content = is_array($encryptedContent) ? $encryptedContent['content'] : $encryptedContent;
+
+            //! Desencriptar contenido
             $decryptedContent = $this->encryptionService->decrypt(
-                $encryptedContent,
+                $content,
                 $file->encryption_key
             );
 
@@ -48,6 +49,7 @@ class TransferService
      * 🔒️ Método para eliminar transferencias expiradas
      *
      * @return void
+     * @throws Exception
      */
     public function deleteExpiredTransfers()
     {
@@ -74,6 +76,7 @@ class TransferService
      *
      * @param Transfer $transfer
      * @return void
+     * @throws Exception
      */
     public function cleanupSingleDownload(Transfer $transfer)
     {
