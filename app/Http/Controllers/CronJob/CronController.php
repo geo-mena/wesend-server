@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\CronJob;
 
+use App\Http\Controllers\Controller;
 use App\Services\UploadService;
 use App\Services\TransferService;
 use Exception;
