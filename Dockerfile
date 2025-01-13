@@ -35,6 +35,7 @@ RUN printf '[PHP]\ndate.timezone = "America/Guayaquil"\n' > /usr/local/etc/php/c
 RUN apk add --no-cache postgresql-client
 RUN docker-php-ext-enable redis
 
+COPY .env .env
 COPY . .
 
 RUN composer install --no-interaction --no-dev --optimize-autoloader
