@@ -37,21 +37,14 @@ RUN docker-php-ext-enable redis
 
 COPY . .
 
-# Establecer las credenciales temporalmente solo para composer install
-ENV AWS_ACCESS_KEY_ID=a6060c070e9a53280e938ce56b33795c \
-    AWS_SECRET_ACCESS_KEY=9fd96cffd5b507cd52b2f6b9cb887e62e19f66119cc54a52060c2b69ddd0e02d \
-    AWS_DEFAULT_REGION=us-east-1 \
-    AWS_ENDPOINT=https://bf920ae0738cfcaa994cc90c85a84d1d.r2.cloudflarestorage.com \
-    AWS_USE_PATH_STYLE_ENDPOINT=true
+# !Crear configuración temporal de AWS
+RUN mkdir -p config
+RUN echo "<?php return ['credentials' => false, 'use_aws_shared_config_files' => false];" > config/aws.php
 
 RUN composer install --no-interaction --no-dev --optimize-autoloader
 
-# Limpiar las credenciales después de composer install
-ENV AWS_ACCESS_KEY_ID= \
-    AWS_SECRET_ACCESS_KEY= \
-    AWS_DEFAULT_REGION= \
-    AWS_ENDPOINT= \
-    AWS_USE_PATH_STYLE_ENDPOINT=
+# !Eliminar configuración temporal
+RUN rm config/aws.php
 
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage
