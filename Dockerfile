@@ -37,14 +37,7 @@ RUN docker-php-ext-enable redis
 
 COPY . .
 
-# !Crear configuración temporal de AWS
-RUN mkdir -p config
-RUN echo "<?php return ['credentials' => false, 'use_aws_shared_config_files' => false];" > config/aws.php
-
 RUN composer install --no-interaction --no-dev --optimize-autoloader
-
-# !Eliminar configuración temporal
-RUN rm config/aws.php
 
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage
