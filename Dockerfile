@@ -36,6 +36,7 @@ RUN apk add --no-cache postgresql-client
 RUN docker-php-ext-enable redis
 
 COPY . .
+
 RUN composer install --no-interaction --no-dev --optimize-autoloader
 
 RUN chown -R www-data:www-data /var/www/html \
