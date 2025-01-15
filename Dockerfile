@@ -35,15 +35,22 @@ RUN printf '[PHP]\ndate.timezone = "America/Guayaquil"\n' > /usr/local/etc/php/c
 RUN apk add --no-cache postgresql-client
 RUN docker-php-ext-enable redis
 
-COPY . .
+# Copiar solo composer.json y composer.lock primero
+COPY composer.json composer.lock ./
 
-RUN sed -i 's/"post-autoload-dump": \[.*\],/"post-autoload-dump": [],/g' composer.json
+# Guardar una copia del composer.json original
+RUN cp composer.json composer.json.orig
+
+# Modificar composer.json para quitar los scripts
+RUN jq 'del(.scripts."post-autoload-dump")' composer.json > composer.tmp.json && mv composer.tmp.json composer.json
 
 # Instalar dependencias
 RUN composer install --no-interaction --no-dev --optimize-autoloader
 
-# Restaurar composer.json original
-RUN git checkout composer.json
+# Restaurar el composer.json original
+RUN mv composer.json.orig composer.json
+
+COPY . .
 
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage
