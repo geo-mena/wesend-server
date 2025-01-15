@@ -54,11 +54,16 @@ RUN mv composer.json.orig composer.json
 
 COPY . .
 
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage
-
-RUN php artisan storage:link
+RUN mkdir -p /var/www/html/storage/app/public
+RUN chmod -R 755 /var/www/html/storage
+RUN chown -R www-data:www-data /var/www/html
 
 EXPOSE 80
 
-CMD php artisan serve --host=0.0.0.0 --port=$PORT
+# Ejecutar todos los comandos de artisan cuando el contenedor inicie
+CMD composer dump-autoload && \
+    php artisan package:discover && \
+    php artisan config:cache && \
+    php artisan route:cache && \
+    php artisan storage:link && \
+    php artisan serve --host=0.0.0.0 --port=$PORT
