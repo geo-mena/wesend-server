@@ -1,5 +1,7 @@
 FROM php:8.1.10-fpm-alpine
 
+RUN apk add --no-cache jq
+
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 RUN set -ex && apk --no-cache add postgresql-dev
 RUN docker-php-ext-install pdo_pgsql
