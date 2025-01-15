@@ -37,10 +37,13 @@ RUN docker-php-ext-enable redis
 
 COPY . .
 
-RUN COMPOSER_DISABLE_XDEBUG_WARN=1 composer install --no-interaction --no-dev --optimize-autoloader --no-scripts
+RUN sed -i 's/"post-autoload-dump": \[.*\],/"post-autoload-dump": [],/g' composer.json
 
-# No ejecutar package:discover durante la construcción
-RUN composer dump-autoload --optimize
+# Instalar dependencias
+RUN composer install --no-interaction --no-dev --optimize-autoloader
+
+# Restaurar composer.json original
+RUN git checkout composer.json
 
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage
