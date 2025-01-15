@@ -37,7 +37,12 @@ RUN docker-php-ext-enable redis
 
 COPY . .
 
-RUN COMPOSER_DISABLE_DISCOVERY=1 composer install --no-interaction --no-dev --optimize-autoloader
+RUN composer install --no-interaction --no-dev --optimize-autoloader --no-scripts
+
+# Ejecutar los scripts manualmente después
+RUN composer dump-autoload && \
+    php artisan config:clear && \
+    php artisan cache:clear
 
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage
