@@ -24,32 +24,36 @@ class RateLimitService
      */
     public function canUpload(string $ip, int $fileSize): array
     {
-        $key = "upload_limit:{$ip}";
-        $period = 86400; // 24 horas en segundos
-        $limit = 1073741824; // 1 GB en bytes
+        try {
+            $key = "upload_limit:{$ip}";
+            $period = 86400; // 24 horas en segundos
+            $limit = 1073741824; // 1 GB en bytes
 
-        //! Obtener uso actual
-        $currentUsage = (int) $this->redis->get($key) ?? 0;
-        $remaining = $limit - $currentUsage;
+            //! Obtener uso actual
+            $currentUsage = (int) $this->redis->get($key) ?? 0;
+            $remaining = $limit - $currentUsage;
 
-        //! Verificar si excedería el límite
-        if ($fileSize > $remaining) {
-            $remainingTime = $this->redis->ttl($key);
+            //! Verificar si excedería el límite
+            if ($fileSize > $remaining) {
+                $remainingTime = $this->redis->ttl($key);
+
+                return [
+                    'allowed' => false,
+                    'remaining_bytes' => $remaining,
+                    'reset_in' => $remainingTime,
+                    'message' => 'El archivo excede el espacio disponible. Tienes ' . round($remaining / 1024 / 1024, 2) . ' MB disponibles'
+                ];
+            }
 
             return [
-                'allowed' => false,
+                'allowed' => true,
                 'remaining_bytes' => $remaining,
-                'reset_in' => $remainingTime,
-                'message' => 'El archivo excede el espacio disponible. Tienes ' . round($remaining / 1024 / 1024, 2) . ' MB disponibles'
+                'reset_in' => $this->redis->ttl($key),
+                'message' => null
             ];
+        } catch (Exception $e) {
+            throw $e;
         }
-
-        return [
-            'allowed' => true,
-            'remaining_bytes' => $remaining,
-            'reset_in' => $this->redis->ttl($key),
-            'message' => null
-        ];
     }
 
     /**
@@ -62,18 +66,22 @@ class RateLimitService
      */
     public function trackUsage(string $ip, int $bytes): void
     {
-        $key = "upload_limit:{$ip}";
-        $period = 86400; // 24 horas
+        try {
+            $key = "upload_limit:{$ip}";
+            $period = 86400; // 24 horas
 
-        $this->redis->multi();
+            $this->redis->multi();
 
-        //! Incrementar contador
-        $this->redis->incrby($key, $bytes);
+            //! Incrementar contador
+            $this->redis->incrby($key, $bytes);
 
-        //! Establecer TTL si es nueva key
-        $this->redis->expire($key, $period);
+            //! Establecer TTL si es nueva key
+            $this->redis->expire($key, $period);
 
-        $this->redis->exec();
+            $this->redis->exec();
+        } catch (Exception $e) {
+            throw $e;
+        }
     }
 
     /**
