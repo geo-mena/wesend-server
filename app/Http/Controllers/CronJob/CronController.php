@@ -22,7 +22,7 @@ class CronController extends Controller
     }
 
     /**
-     * 🚩 Clean orphaned files
+     * ⏰ Clean orphaned files
      *
      * @return JsonResponse
      * @throws Exception
@@ -39,13 +39,13 @@ class CronController extends Controller
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Cleanup process failed'
+                'message' => 'Cleanup process failed' . $e->getMessage()
             ], 500);
         }
     }
 
     /**
-     * 🚩 Clean expired transfers
+     * ⏰ Clean expired transfers of R2 and DB
      *
      * @return JsonResponse
      * @throws Exception
@@ -62,7 +62,7 @@ class CronController extends Controller
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Cleanup process failed'
+                'message' => 'Cleanup process failed' . $e->getMessage()
             ], 500);
         }
     }
