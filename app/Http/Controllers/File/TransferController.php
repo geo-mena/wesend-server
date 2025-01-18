@@ -317,4 +317,71 @@ class TransferController extends Controller
             ], 401);
         }
     }
+
+    /**
+     * 🌱 Método para previsualizar un archivo PDF
+     * 
+     * @param string $token
+     * @param Request $request
+     * @return Response
+     * @throws Exception
+     */
+    public function previewFile($token, Request $request)
+    {
+        try {
+            $transfer = Transfer::where('download_token', $token)
+                ->where('expires_at', '>', now())
+                ->with('files')
+                ->firstOrFail();
+
+            if ($transfer->password) {
+                $request->validate([
+                    'password' => 'required|string'
+                ]);
+
+                if (!Hash::check($request->input('password'), $transfer->password)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid password'
+                    ], 403);
+                }
+            }
+
+            $file = $transfer->files()
+                ->where('id', $request->input('file_id'))
+                ->firstOrFail();
+
+            //! Validar que sea un PDF
+            if ($file->mime_type !== 'application/pdf') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Only PDF files can be previewed'
+                ], 400);
+            }
+
+            $fileContent = $this->transferService->getDecryptedFile($file);
+
+            if (empty($fileContent)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Empty file content'
+                ], 500);
+            }
+
+            $headers = [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="' . $file->original_name . '"',
+                'Content-Length' => strlen($fileContent),
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+                'Pragma' => 'no-cache'
+            ];
+
+            return response($fileContent, 200, $headers);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error previewing file'
+            ], 500);
+        }
+    }
 }
