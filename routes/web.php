@@ -34,6 +34,9 @@ Route::prefix('v1')->group(function () {
 
     Route::post('upload/finalize-batch', [FileController::class, 'finalizeBatch']);
 
+    //! Preview file PDF
+    Route::get('/transfer/{token}/preview', [TransferController::class, 'previewFile'])->name('transfer.preview');
+
     //! Check if an IP can upload more files
     Route::post('upload/check-limit', [FileController::class, 'checkLimit']);
 });
