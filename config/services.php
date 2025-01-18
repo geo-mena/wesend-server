@@ -44,4 +44,9 @@ return [
         'bucket' => env('R2_BUCKET'),
         'public_url' => env('R2_PUBLIC_URL', 'https://pub-30394ee3d88d40f4b31a80834adc3bd7.r2.dev'),
     ],
+
+    'virustotal' => [
+        'api_key' => env('VIRUSTOTAL_API_KEY'),
+        'timeout' => env('VIRUSTOTAL_TIMEOUT', 30),
+    ],
 ];

@@ -32,4 +32,5 @@ Route::prefix('v1')->group(function () {
 Route::prefix('cron')->group(function () {
     Route::get('clean-orphaned', [CronController::class, 'cleanOrphanedFiles']);
     Route::get('clean-transfers', [CronController::class, 'cleanExpiredTransfers']);
+    Route::get('clean-rate-limits', [CronController::class, 'cleanOrphanedRecords']);
 });
