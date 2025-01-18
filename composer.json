@@ -7,7 +7,7 @@
     "require": {
         "php": "^8.1",
         "aws/aws-sdk-php": "^3.336",
-        "guzzlehttp/guzzle": "^7.2",
+        "guzzlehttp/guzzle": "^7.9",
         "imagekit/imagekit": "^4.0",
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
