@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\CronController;
+use App\Http\Controllers\CronJob\CronController;
 use App\Http\Controllers\File\FileController;
 use App\Http\Controllers\File\TransferController;
 use Illuminate\Http\Request;
