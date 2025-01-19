@@ -33,4 +33,5 @@ Route::prefix('cron')->group(function () {
     Route::get('clean-orphaned', [CronController::class, 'cleanOrphanedFiles']);
     Route::get('clean-transfers', [CronController::class, 'cleanExpiredTransfers']);
     Route::get('clean-rate-limits', [CronController::class, 'cleanOrphanedRecords']);
+    Route::get('clean-direct-transfers', [CronController::class, 'cleanDirectTransfers']);
 });
