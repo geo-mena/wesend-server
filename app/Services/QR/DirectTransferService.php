@@ -100,7 +100,7 @@ class DirectTransferService
     }
 
     /**
-     * Limpia los recursos de una transferencia usada
+     * 🔒️ Limpia los recursos de una transferencia usada
      * 
      * @param DirectTransfer $transfer
      * @return void
@@ -125,7 +125,7 @@ class DirectTransferService
     }
 
     /**
-     * Elimina transferencias expiradas
+     * 🔒️ Elimina transferencias expiradas
      * 
      * @return void
      * @throws Exception
@@ -143,6 +143,26 @@ class DirectTransferService
                 $transfer->files()->delete();
                 $transfer->delete();
             }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * 🔒️ Ejecuta todas las tareas de limpieza de transferencias
+     * 
+     * @return void
+     * @throws Exception
+     */
+    public function cleanDirectTransfers()
+    {
+        try {
+            $usedTransfers = DirectTransfer::where('used', true)->get();
+            foreach ($usedTransfers as $transfer) {
+                $this->cleanupUsedTransfer($transfer);
+            }
+
+            $this->deleteExpiredTransfers();
         } catch (Exception $e) {
             throw $e;
         }
