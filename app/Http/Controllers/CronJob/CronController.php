@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\CronJob;
 
 use App\Http\Controllers\Controller;
+use App\Services\QR\DirectTransferService;
 use App\Services\RateLimitService;
 use App\Services\UploadService;
 use App\Services\TransferService;
@@ -14,15 +15,18 @@ class CronController extends Controller
     protected $uploadService;
     protected $transferService;
     protected $rateLimitService;
+    protected $directTransferService;
 
     public function __construct(
         UploadService $uploadService,
         TransferService $transferService,
-        RateLimitService $rateLimitService
+        RateLimitService $rateLimitService,
+        DirectTransferService $directTransferService
     ) {
         $this->uploadService = $uploadService;
         $this->transferService = $transferService;
         $this->rateLimitService = $rateLimitService;
+        $this->directTransferService = $directTransferService;
     }
 
     /**
@@ -72,7 +76,7 @@ class CronController extends Controller
     }
 
     /**
-     * 🚩 Clean orphaned rate limit records
+     * ⏰ Clean orphaned rate limit records
      *
      * @return JsonResponse
      * @throws Exception
@@ -85,6 +89,29 @@ class CronController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Orphaned rate limit records cleaned successfully'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cleanup process failed' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * ⏰ Clean orphaned rate limit records
+     *
+     * @return JsonResponse
+     * @throws Exception
+     */
+    public function cleanDirectTransfers(): JsonResponse
+    {
+        try {
+            $this->directTransferService->cleanDirectTransfers();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Direct transfers cleaned successfully'
             ]);
         } catch (Exception $e) {
             return response()->json([
