@@ -3,10 +3,10 @@
 namespace App\Services\QR;
 
 use App\Models\DirectTransfer;
+use Illuminate\Support\Facades\Hash;
 use App\Services\EncryptionService;
 use App\Services\R2Service;
 use Exception;
-use Illuminate\Support\Facades\Hash;
 
 class DirectTransferService
 {
@@ -95,7 +95,7 @@ class DirectTransferService
 
             return $transfer;
         } catch (Exception $e) {
-            throw new Exception('Transfer not found or expired');
+            throw $e;
         }
     }
 
