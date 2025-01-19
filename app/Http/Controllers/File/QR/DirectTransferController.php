@@ -5,10 +5,10 @@ namespace App\Http\Controllers\File\QR;
 use App\Http\Controllers\Controller;
 use App\Services\QR\DirectTransferService;
 use App\Services\TransferService;
-use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Exception;
 
 class DirectTransferController extends Controller
 {
