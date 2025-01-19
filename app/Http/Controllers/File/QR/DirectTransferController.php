@@ -8,7 +8,6 @@ use App\Services\TransferService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class DirectTransferController extends Controller
@@ -25,7 +24,7 @@ class DirectTransferController extends Controller
     }
 
     /**
-     * Genera un código QR y PIN para transferencia directa
+     * 🌱 Genera un código QR y PIN para transferencia directa
      * 
      * @param Request $request
      * @return JsonResponse
@@ -39,7 +38,7 @@ class DirectTransferController extends Controller
         ]);
 
         try {
-            $pin = mt_rand(100000, 999999); // Genera PIN de 6 dígitos
+            $pin = mt_rand(100000, 999999);
             $token = Str::uuid();
 
             $transfer = $this->directTransferService->create([
@@ -58,7 +57,6 @@ class DirectTransferController extends Controller
                 'expires_at' => $transfer->expires_at
             ]);
         } catch (Exception $e) {
-            Log::debug($e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Error generating direct transfer'
@@ -67,7 +65,7 @@ class DirectTransferController extends Controller
     }
 
     /**
-     * Valida el PIN y permite la descarga
+     * 🌱 Valida el PIN y permite la descarga
      * 
      * @param Request $request
      * @param string $token
@@ -99,7 +97,7 @@ class DirectTransferController extends Controller
     }
 
     /**
-     * Descarga un archivo específico de una transferencia
+     * 🌱 Descarga un archivo específico de una transferencia
      * 
      * @param string $token
      * @param Request $request
@@ -124,21 +122,19 @@ class DirectTransferController extends Controller
                 ], 403);
             }
 
-            // Obtener archivo de la transferencia
             $file = $transfer->files()
-                ->where('id', $request->input('file_id'))
+                ->where('files.id', $request->input('file_id'))
                 ->firstOrFail();
 
-            // Obtener contenido desencriptado usando el TransferService
             $fileContent = $this->transferService->getDecryptedFile($file);
 
             if (empty($fileContent)) {
                 throw new Exception('Empty file content');
             }
 
-            // Marcar la transferencia como usada
-            $transfer->used = true;
-            $transfer->save();
+            //! Marcar la transferencia como usada
+            // $transfer->used = true;
+            // $transfer->save();
 
             DB::commit();
 
@@ -153,8 +149,6 @@ class DirectTransferController extends Controller
             return response($fileContent, 200, $headers);
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Error downloading direct transfer file: ' . $e->getMessage());
-
             return response()->json([
                 'success' => false,
                 'message' => 'Error downloading file'
@@ -163,7 +157,7 @@ class DirectTransferController extends Controller
     }
 
     /**
-     * Verifica el estado de una transferencia directa
+     * 🌱 Verifica el estado de una transferencia directa
      * 
      * @param string $token
      * @return JsonResponse
