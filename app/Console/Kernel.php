@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('files:clean-transfers')->everyMinute(); //! Cada 24 horas
         $schedule->command('files:clean-orphaned')->everyMinute(); //! Cada 24 horas
         $schedule->command('uploads:clean-orphaned')->everyMinute(); //! Cada 24 horas
+        $schedule->command('files:clean-direct-transfers')->everyMinute(); //! Cada 24 horas
     }
 
     /**
