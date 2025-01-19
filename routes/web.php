@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\File\FileController;
 use App\Http\Controllers\File\TransferController;
+use App\Http\Controllers\P2P\P2PController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -39,4 +40,10 @@ Route::prefix('v1')->group(function () {
 
     //! Check if an IP can upload more files
     Route::post('upload/check-limit', [FileController::class, 'checkLimit']);
+});
+
+Route::prefix('p2p')->group(function () {
+    Route::post('/session', [P2PController::class, 'createSession']);
+    Route::post('/answer', [P2PController::class, 'answerOffer']);
+    Route::post('/ice', [P2PController::class, 'exchangeICE']);
 });
