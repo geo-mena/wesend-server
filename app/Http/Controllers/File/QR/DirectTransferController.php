@@ -45,7 +45,7 @@ class DirectTransferController extends Controller
                 'files' => $request->input('files'),
                 'pin' => $pin,
                 'token' => $token,
-                'expires_at' => now()->addMinutes(60)
+                'expires_at' => now()->addMinutes(10)
             ]);
 
             $qrData = config('app.frontend_url') . '/send/direct/' . $token;
