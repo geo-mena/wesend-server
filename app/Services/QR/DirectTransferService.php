@@ -46,7 +46,7 @@ class DirectTransferService
         try {
             $transfer = DirectTransfer::where('token', $token)
                 ->where('expires_at', '>', now())
-                ->where('used', false)
+                // ->where('used', false) // Descomentar si se desea marcar como usado despues de las pruebas
                 ->with('files')
                 ->firstOrFail();
 
@@ -54,9 +54,9 @@ class DirectTransferService
                 throw new Exception('Invalid PIN');
             }
 
-            // Marcar como usado
-            $transfer->used = true;
-            $transfer->save();
+            // Marcar como usado ? Descomentar si se desea marcar como usado despues de las pruebas
+            // $transfer->used = true;
+            // $transfer->save();
 
             return $transfer;
         } catch (Exception $e) {
