@@ -3,13 +3,27 @@
 namespace App\Services\QR;
 
 use App\Models\DirectTransfer;
+use App\Services\EncryptionService;
+use App\Services\R2Service;
 use Exception;
 use Illuminate\Support\Facades\Hash;
 
 class DirectTransferService
 {
+
+    protected $r2Service;
+    protected $encryptionService;
+
+    public function __construct(
+        R2Service $r2Service,
+        EncryptionService $encryptionService
+    ) {
+        $this->r2Service = $r2Service;
+        $this->encryptionService = $encryptionService;
+    }
+
     /**
-     * Crea una nueva transferencia directa
+     * 🔒️ Crea una nueva transferencia directa
      * 
      * @param array $data
      * @return DirectTransfer
@@ -34,7 +48,7 @@ class DirectTransferService
     }
 
     /**
-     * Valida el PIN de una transferencia
+     * 🔒️ Valida el PIN de una transferencia
      * 
      * @param string $token
      * @param string $pin
@@ -65,7 +79,7 @@ class DirectTransferService
     }
 
     /**
-     * Encuentra una transferencia por token
+     * 🔒️ Encuentra una transferencia por token
      * 
      * @param string $token
      * @return DirectTransfer
@@ -82,6 +96,55 @@ class DirectTransferService
             return $transfer;
         } catch (Exception $e) {
             throw new Exception('Transfer not found or expired');
+        }
+    }
+
+    /**
+     * Limpia los recursos de una transferencia usada
+     * 
+     * @param DirectTransfer $transfer
+     * @return void
+     * @throws Exception
+     */
+    public function cleanupUsedTransfer(DirectTransfer $transfer)
+    {
+        try {
+            if ($transfer->used) {
+                // Eliminar archivos de R2
+                foreach ($transfer->files as $file) {
+                    $this->r2Service->delete($file->storage_path);
+                }
+
+                // Eliminar registros de la base de datos
+                $transfer->files()->delete();
+                $transfer->delete();
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * Elimina transferencias expiradas
+     * 
+     * @return void
+     * @throws Exception
+     */
+    public function deleteExpiredTransfers()
+    {
+        try {
+            $expiredTransfers = DirectTransfer::where('expires_at', '<', now())->get();
+
+            foreach ($expiredTransfers as $transfer) {
+                foreach ($transfer->files as $file) {
+                    $this->r2Service->delete($file->storage_path);
+                }
+
+                $transfer->files()->delete();
+                $transfer->delete();
+            }
+        } catch (Exception $e) {
+            throw $e;
         }
     }
 }
