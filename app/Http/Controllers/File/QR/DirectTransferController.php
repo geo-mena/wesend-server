@@ -118,7 +118,7 @@ class DirectTransferController extends Controller
             if ($transfer->used) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Esta transferencia ya ha sido utilizada'
+                    'message' => 'This transfer has already been used!'
                 ], 403);
             }
 
