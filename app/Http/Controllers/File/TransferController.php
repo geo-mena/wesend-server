@@ -141,7 +141,7 @@ class TransferController extends Controller
             if ($transfer->single_download && $transfer->downloaded) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Este enlace ya ha sido utilizado'
+                    'message' => 'This link has already been used'
                 ], 403);
             }
 
@@ -223,7 +223,7 @@ class TransferController extends Controller
             if ($transfer->single_download && $transfer->downloaded) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Este enlace ya ha sido utilizado'
+                    'message' => 'This link has already been used'
                 ], 403);
             }
 
