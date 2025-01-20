@@ -60,7 +60,7 @@ class DirectTransferService
         try {
             $transfer = DirectTransfer::where('token', $token)
                 ->where('expires_at', '>', now())
-                ->where('used', false)
+                //! ->where('used', false) 
                 ->with('files')
                 ->firstOrFail();
 
@@ -69,8 +69,8 @@ class DirectTransferService
             }
 
             //! Marcar como usado
-            $transfer->used = true;
-            $transfer->save();
+            // $transfer->used = true;
+            // $transfer->save();
 
             return $transfer;
         } catch (Exception $e) {
@@ -106,7 +106,7 @@ class DirectTransferService
      * @return void
      * @throws Exception
      */
-    public function cleanupUsedTransfer(DirectTransfer $transfer)
+    public function cleanUsedTransfer(DirectTransfer $transfer)
     {
         try {
             if ($transfer->used) {
@@ -157,7 +157,7 @@ class DirectTransferService
         try {
             $usedTransfers = DirectTransfer::where('used', true)->get();
             foreach ($usedTransfers as $transfer) {
-                $this->cleanupUsedTransfer($transfer);
+                $this->cleanUsedTransfer($transfer);
             }
 
             $this->deleteExpiredTransfers();
