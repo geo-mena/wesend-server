@@ -21,12 +21,12 @@ Route::get('/', function () {
     return view('home.welcome');
 });
 
+//! MAIN ROUTES FOR FILE UPLOAD
 Route::prefix('v1')->group(function () {
     Route::post('upload/chunk', [FileController::class, 'upload']);
     Route::post('upload/finalize', [FileController::class, 'finalize']);
     Route::post('transfer/email', [TransferController::class, 'createEmailTransfer']);
     Route::post('transfer/link', [TransferController::class, 'createLinkTransfer']);
-    Route::get('download/{token}', [TransferController::class, 'download'])->name('download');
 
     Route::get('transfer/check/{token}', [TransferController::class, 'checkTransfer']);
     Route::post('transfer/validate/{token}', [TransferController::class, 'validatePassword']);
@@ -36,13 +36,17 @@ Route::prefix('v1')->group(function () {
 
     Route::post('upload/finalize-batch', [FileController::class, 'finalizeBatch']);
 
-    //! Preview file PDF
+    //! PREVIEW FILE
     Route::get('/transfer/{token}/preview', [TransferController::class, 'previewFile'])->name('transfer.preview');
 
-    //! Check if an IP can upload more files
+    //! CHECK LIMIT FILE
     Route::post('upload/check-limit', [FileController::class, 'checkLimit']);
 });
 
+//! DOWNLOAD FILE
+Route::get('d/{token}', [TransferController::class, 'download'])->name('download');
+
+//! DOWNLOAD DIRECT FILE
 Route::prefix('direct')->group(function () {
     Route::post('/generate', [DirectTransferController::class, 'generate']);
     Route::post('/{token}/validate', [DirectTransferController::class, 'validatePin']);
@@ -50,6 +54,7 @@ Route::prefix('direct')->group(function () {
     Route::get('/{token}', [DirectTransferController::class, 'findTransfer']);
 });
 
+//! BUILDING...
 Route::prefix('p2p')->group(function () {
     Route::post('/session', [P2PController::class, 'createSession']);
     Route::post('/answer', [P2PController::class, 'answerOffer']);
