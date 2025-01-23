@@ -21,42 +21,51 @@ Route::get('/', function () {
     return view('home.welcome');
 });
 
-//! MAIN ROUTES FOR FILE UPLOAD
-Route::prefix('v1')->group(function () {
-    Route::post('upload/chunk', [FileController::class, 'upload']);
-    Route::post('upload/finalize', [FileController::class, 'finalize']);
-    Route::post('transfer/email', [TransferController::class, 'createEmailTransfer']);
-    Route::post('transfer/link', [TransferController::class, 'createLinkTransfer']);
+// FILE ROUTES
+Route::controller(FileController::class)
+    ->prefix('v1')
+    ->group(function () {
+        Route::post('upload/chunk', 'upload');
+        Route::post('upload/finalize', 'finalize');
+        Route::delete('upload/chunks/{uploadId}', 'deleteChunks');
+        Route::delete('files/{id}', 'deleteFile');
+        Route::post('upload/finalize-batch', 'finalizeBatch');
+        Route::post('upload/check-limit', 'checkLimit');
+    });
 
-    Route::get('transfer/check/{token}', [TransferController::class, 'checkTransfer']);
-    Route::post('transfer/validate/{token}', [TransferController::class, 'validatePassword']);
+// TRANSFER ROUTES
+Route::controller(TransferController::class)
+    ->prefix('v1')
+    ->group(function () {
+        Route::post('transfer/email', 'createEmailTransfer');
+        Route::post('transfer/link', 'createLinkTransfer');
+        Route::get('transfer/check/{token}', 'checkTransfer');
+        Route::post('transfer/validate/{token}', 'validatePassword');
+        Route::get('/transfer/{token}/preview', 'previewFile')->name('transfer.preview');
+    });
 
-    Route::delete('upload/chunks/{uploadId}', [FileController::class, 'deleteChunks']);
-    Route::delete('files/{id}', [FileController::class, 'deleteFile']);
+// DOWNLOAD FILE
+Route::controller(TransferController::class)
+    ->prefix('d')
+    ->group(function () {
+        Route::get('/{token}', 'download')->name('download');
+    });
 
-    Route::post('upload/finalize-batch', [FileController::class, 'finalizeBatch']);
-
-    //! PREVIEW FILE
-    Route::get('/transfer/{token}/preview', [TransferController::class, 'previewFile'])->name('transfer.preview');
-
-    //! CHECK LIMIT FILE
-    Route::post('upload/check-limit', [FileController::class, 'checkLimit']);
-});
-
-//! DOWNLOAD FILE
-Route::get('d/{token}', [TransferController::class, 'download'])->name('download');
-
-//! DOWNLOAD DIRECT FILE
-Route::prefix('direct')->group(function () {
-    Route::post('/generate', [DirectTransferController::class, 'generate']);
-    Route::post('/{token}/validate', [DirectTransferController::class, 'validatePin']);
-    Route::get('/{token}/download', [DirectTransferController::class, 'download'])->name('direct.download');
-    Route::get('/{token}', [DirectTransferController::class, 'findTransfer']);
-});
+// DOWNLOAD DIRECT FILE
+Route::controller(DirectTransferController::class)
+    ->prefix('direct')
+    ->group(function () {
+        Route::post('/generate', 'generate');
+        Route::post('/{token}/validate', 'validatePin');
+        Route::get('/{token}/download', 'download')->name('direct.download');
+        Route::get('/{token}', 'findTransfer');
+    });
 
 //! BUILDING...
-Route::prefix('p2p')->group(function () {
-    Route::post('/session', [P2PController::class, 'createSession']);
-    Route::post('/answer', [P2PController::class, 'answerOffer']);
-    Route::post('/ice', [P2PController::class, 'exchangeICE']);
-});
+Route::controller(P2PController::class)
+    ->prefix('p2p')
+    ->group(function () {
+        Route::post('/session', 'createSession');
+        Route::post('/answer', 'answerOffer');
+        Route::post('/ice', 'exchangeICE');
+    });
