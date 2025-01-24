@@ -27,6 +27,8 @@ class UploadService
      * @param int $chunkNumber
      * @param string $chunkData
      * @param int $totalChunks
+     * @return void
+     * @throws Exception
      */
     public function storeChunk(string $uploadId, int $chunkNumber, string $chunkData, int $totalChunks)
     {
@@ -65,6 +67,7 @@ class UploadService
      *
      * @param string $uploadId
      * @return array
+     * @throws Exception
      */
     public function finalizeUpload(string $uploadId)
     {
@@ -131,6 +134,8 @@ class UploadService
      *
      * @param string $uploadId
      * @param int $currentChunk
+     * @return void
+     * @throws Exception
      */
     private function updateProgress(string $uploadId, int $currentChunk)
     {
@@ -149,6 +154,7 @@ class UploadService
      *
      * @param string $uploadId
      * @return bool
+     * @throws Exception
      */
     public function deleteChunks(string $uploadId)
     {
@@ -170,6 +176,7 @@ class UploadService
      *
      * @param string $filePath
      * @return bool
+     * @throws Exception
      */
     public function deleteFileFromStorage(string $filePath)
     {
@@ -187,6 +194,7 @@ class UploadService
      *
      * @param string $uploadId
      * @return array
+     * @throws Exception
      */
     public function getUploadProgress(string $uploadId): array
     {
@@ -202,6 +210,7 @@ class UploadService
      * 🔒️ Método para limpiar archivos temporales expirados
      * 
      * @return void
+     * @throws Exception
      */
     public function cleanOrphanedFiles()
     {
