@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use App\Models\File;
 use App\Services\RateLimitService;
 use Exception;
-use Illuminate\Support\Facades\Log;
 
 class FileController extends Controller
 {
@@ -130,7 +129,6 @@ class FileController extends Controller
     public function deleteChunks($uploadId)
     {
         try {
-            // Eliminar los chunks de Redis
             $this->uploadService->deleteChunks($uploadId);
 
             return response()->json([
@@ -157,10 +155,7 @@ class FileController extends Controller
         try {
             $file = File::findOrFail($id);
 
-            // Eliminar archivo de R2
             $this->uploadService->deleteFileFromStorage($file->storage_path);
-
-            // Eliminar registro de la base de datos
             $file->delete();
 
             return response()->json([
