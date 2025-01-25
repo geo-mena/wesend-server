@@ -24,6 +24,7 @@ Route::get('/', function () {
 // FILE ROUTES
 Route::controller(FileController::class)
     ->prefix('v1')
+    ->middleware('auth.route')
     ->group(function () {
         Route::post('upload/chunk', 'upload');
         Route::post('upload/finalize', 'finalize');
@@ -36,6 +37,7 @@ Route::controller(FileController::class)
 // TRANSFER ROUTES
 Route::controller(TransferController::class)
     ->prefix('v1')
+    ->middleware('auth.route')
     ->group(function () {
         Route::post('transfer/email', 'createEmailTransfer');
         Route::post('transfer/link', 'createLinkTransfer');
@@ -47,6 +49,7 @@ Route::controller(TransferController::class)
 // DOWNLOAD FILE
 Route::controller(TransferController::class)
     ->prefix('d')
+    ->middleware('auth.route')
     ->group(function () {
         Route::get('/{token}', 'download')->name('download');
     });
@@ -54,6 +57,7 @@ Route::controller(TransferController::class)
 // DOWNLOAD DIRECT FILE
 Route::controller(DirectTransferController::class)
     ->prefix('direct')
+    ->middleware('auth.route')
     ->group(function () {
         Route::post('/generate', 'generate');
         Route::post('/{token}/validate', 'validatePin');
@@ -64,6 +68,7 @@ Route::controller(DirectTransferController::class)
 //! BUILDING...
 Route::controller(P2PController::class)
     ->prefix('p2p')
+    ->middleware('auth.route')
     ->group(function () {
         Route::post('/session', 'createSession');
         Route::post('/answer', 'answerOffer');
