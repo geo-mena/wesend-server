@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
-use App\Models\File;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TransferEmail;
 use App\Models\Transfer;
+use App\Models\File;
 use Exception;
 
 class TransferService
@@ -66,6 +68,31 @@ class TransferService
                 $transfer->files()->delete();
                 $transfer->delete();
             }
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * 🔒️ Método para enviar notificación por correo electrónico
+     *
+     * @param Transfer $transfer
+     * @return void
+     * @throws Exception
+     */
+    public function sendEmailNotification(Transfer $transfer)
+    {
+        try {
+            $data = [
+                'senderEmail' => $transfer->sender_email,
+                'files' => $transfer->files,
+                'expirationDate' => $transfer->expires_at->format('d/m/Y H:i'),
+                'downloadToken' => $transfer->download_token,
+                'message' => $transfer->message,
+            ];
+
+            Mail::to($transfer->recipient_email)
+                ->send(new TransferEmail($data));
         } catch (Exception $e) {
             throw $e;
         }

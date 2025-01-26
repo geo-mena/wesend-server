@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\File;
 
 use App\Http\Controllers\Controller;
-use App\Jobs\SendEmailNotificationJob;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use App\Services\TransferService;
@@ -16,8 +15,9 @@ class TransferController extends Controller
 {
     protected $transferService;
 
-    public function __construct(TransferService $transferService)
-    {
+    public function __construct(
+        TransferService $transferService
+    ) {
         $this->transferService = $transferService;
     }
 
@@ -54,11 +54,10 @@ class TransferController extends Controller
                 'downloaded' => false
             ]);
 
-            // Asociar archivos con la transferencia
             $transfer->files()->attach($request->input('files'));
 
-            // Encolar el envío del email
-            SendEmailNotificationJob::dispatch($transfer);
+            //! Enviar email
+            $this->transferService->sendEmailNotification($transfer);
 
             return response()->json([
                 'success' => true,
