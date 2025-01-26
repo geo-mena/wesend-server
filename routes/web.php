@@ -53,7 +53,7 @@ Route::controller(TransferController::class)
     ->middleware('auth.route')
     ->group(function () {
         Route::get('/{token}', 'download')->name('download');
-        Route::delete('/transfer/{token}', 'deleteTransfer')->name('transfer.delete');
+        Route::delete('/transfer/{token}', 'deleteTransfer')->name('delete');
     });
 
 // DOWNLOAD DIRECT FILE
