@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Mail;
 use App\Mail\TransferEmail;
+use App\Mail\TransferSender;
 use App\Models\Transfer;
 use App\Models\File;
 use Exception;
@@ -80,7 +81,7 @@ class TransferService
      * @return void
      * @throws Exception
      */
-    public function sendEmailNotification(Transfer $transfer)
+    public function sendNotificationEmail(Transfer $transfer)
     {
         try {
             $data = [
@@ -93,6 +94,35 @@ class TransferService
 
             Mail::to($transfer->recipient_email)
                 ->send(new TransferEmail($data));
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * 🔒️ Método para enviar correo electrónico de confirmación
+     *
+     * @param Transfer $transfer
+     * @return void
+     * @throws Exception
+     */
+    public function sendConfirmationEmail(Transfer $transfer)
+    {
+        try {
+            $totalSize = $transfer->files->sum('size');
+            $expirationDate = $transfer->expires_at->format('d/m/Y H:i');
+
+            $data = [
+                'recipient_email' => $transfer->recipient_email,
+                'files' => $transfer->files,
+                'total_size' => number_format($totalSize / 1024, 2) . ' KB',
+                'expiration_date' => $expirationDate,
+                'download_link' => $transfer->download_token,
+                'delete_link' => $transfer->download_token,
+            ];
+
+            Mail::to($transfer->sender_email)
+                ->send(new TransferSender($data));
         } catch (Exception $e) {
             throw $e;
         }

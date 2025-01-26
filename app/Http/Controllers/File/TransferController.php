@@ -22,7 +22,7 @@ class TransferController extends Controller
     }
 
     /**
-     *  🚧 Método para crear una transferencia por email
+     *  🌱 Método para crear una transferencia por email
      *
      * @param Request $request
      * @return JsonResponse
@@ -56,8 +56,10 @@ class TransferController extends Controller
 
             $transfer->files()->attach($request->input('files'));
 
-            //! Enviar email
-            $this->transferService->sendEmailNotification($transfer);
+            //! Enviar email destinatario
+            $this->transferService->sendNotificationEmail($transfer);
+            //! Enviar email remitente
+            $this->transferService->sendConfirmationEmail($transfer);
 
             return response()->json([
                 'success' => true,
@@ -383,6 +385,31 @@ class TransferController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error previewing file'
+            ], 500);
+        }
+    }
+
+    /**
+     * 🌱 Método para eliminar una transferencia
+     *
+     * @param string $token
+     * @return JsonResponse
+     * @throws Exception
+     */
+    public function deleteTransfer($token)
+    {
+        try {
+            $transfer = Transfer::where('download_token', $token)->firstOrFail();
+            $this->transferService->cleanupSingleDownload($transfer);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Transferencia eliminada'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al eliminar'
             ], 500);
         }
     }
