@@ -45,15 +45,14 @@ Route::controller(TransferController::class)
         Route::get('transfer/check/{token}', 'checkTransfer');
         Route::post('transfer/validate/{token}', 'validatePassword');
         Route::get('/transfer/{token}/preview', 'previewFile')->name('transfer.preview');
+        Route::delete('/transfer/{token}', 'deleteTransfer')->name('delete');
     });
 
 // DOWNLOAD & DELETE FILE
 Route::controller(TransferController::class)
     ->prefix('d')
-    ->middleware('auth.route')
     ->group(function () {
         Route::get('/{token}', 'download')->name('download');
-        Route::delete('/transfer/{token}', 'deleteTransfer')->name('delete');
     });
 
 // DOWNLOAD DIRECT FILE
