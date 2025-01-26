@@ -47,12 +47,13 @@ Route::controller(TransferController::class)
         Route::get('/transfer/{token}/preview', 'previewFile')->name('transfer.preview');
     });
 
-// DOWNLOAD FILE
+// DOWNLOAD & DELETE FILE
 Route::controller(TransferController::class)
     ->prefix('d')
     ->middleware('auth.route')
     ->group(function () {
         Route::get('/{token}', 'download')->name('download');
+        Route::delete('/transfer/{token}', 'deleteTransfer')->name('transfer.delete');
     });
 
 // DOWNLOAD DIRECT FILE
