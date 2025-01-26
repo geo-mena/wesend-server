@@ -23,7 +23,7 @@
         <p><strong>Tamaño de los archivos:</strong> {{ $data['total_size'] }}</p>
         <p><strong>Este enlace es válido hasta el:</strong> {{ $data['expiration_date'] }}</p>
 
-        <a href="{{ config('app.frontend_url') }}/send/{{ $data['download_link'] }}" class="button">
+        <a href="{{ $data['download_link'] }}" class="button">
             Descargar archivo enviado
         </a>
 
