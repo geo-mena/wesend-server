@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\File;
 
 use App\Http\Controllers\Controller;
-use App\Services\EmailVerificationService;
+use App\Services\Mail\EmailVerificationService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;

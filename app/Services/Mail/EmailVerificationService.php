@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Mail;
 
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Mail;
