@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\File;
 
 use App\Http\Controllers\Controller;
-use App\Jobs\SendEmailNotificationJob;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use App\Services\TransferService;
@@ -16,13 +15,14 @@ class TransferController extends Controller
 {
     protected $transferService;
 
-    public function __construct(TransferService $transferService)
-    {
+    public function __construct(
+        TransferService $transferService
+    ) {
         $this->transferService = $transferService;
     }
 
     /**
-     *  🚧 Método para crear una transferencia por email
+     *  🌱 Método para crear una transferencia por email
      *
      * @param Request $request
      * @return JsonResponse
@@ -54,11 +54,12 @@ class TransferController extends Controller
                 'downloaded' => false
             ]);
 
-            // Asociar archivos con la transferencia
             $transfer->files()->attach($request->input('files'));
 
-            // Encolar el envío del email
-            SendEmailNotificationJob::dispatch($transfer);
+            //! Enviar email destinatario
+            $this->transferService->sendNotificationEmail($transfer);
+            //! Enviar email remitente
+            $this->transferService->sendConfirmationEmail($transfer);
 
             return response()->json([
                 'success' => true,
@@ -384,6 +385,31 @@ class TransferController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error previewing file'
+            ], 500);
+        }
+    }
+
+    /**
+     * 🌱 Método para eliminar una transferencia
+     *
+     * @param string $token
+     * @return JsonResponse
+     * @throws Exception
+     */
+    public function deleteTransfer($token)
+    {
+        try {
+            $transfer = Transfer::where('download_token', $token)->firstOrFail();
+            $this->transferService->cleanupSingleDownload($transfer);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Transferencia eliminada'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al eliminar'
             ], 500);
         }
     }
