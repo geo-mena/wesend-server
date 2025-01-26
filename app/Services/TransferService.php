@@ -152,4 +152,25 @@ class TransferService
             throw $e;
         }
     }
+
+    /**
+     * 🔒️ Método para eliminar una transferencia
+     *
+     * @param Transfer $transfer
+     * @return void
+     * @throws Exception
+     */
+    public function deleteTransfer(Transfer $transfer)
+    {
+        try {
+            foreach ($transfer->files as $file) {
+                $this->r2Service->delete($file->storage_path);
+            }
+
+            $transfer->files()->delete();
+            $transfer->delete();
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
 }

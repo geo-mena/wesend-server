@@ -400,7 +400,7 @@ class TransferController extends Controller
     {
         try {
             $transfer = Transfer::where('download_token', $token)->firstOrFail();
-            $this->transferService->cleanupSingleDownload($transfer);
+            $this->transferService->deleteTransfer($transfer);
 
             return response()->json([
                 'success' => true,
