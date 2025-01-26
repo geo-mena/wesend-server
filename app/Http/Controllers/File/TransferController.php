@@ -37,7 +37,8 @@ class TransferController extends Controller
             'sender_email' => 'required|email',
             'message' => 'nullable|string',
             'password' => 'nullable|string|min:6',
-            'expires_in' => 'nullable|in:1,2,3'
+            'expires_in' => 'nullable|in:1,2,3',
+            'single_download' => 'nullable|boolean'
         ]);
 
         try {
@@ -45,10 +46,12 @@ class TransferController extends Controller
                 'type' => 'email',
                 'message' => $request->input('message'),
                 'password' => $request->has('password') ? Hash::make($request->input('password')) : null,
+                'download_token' => Str::uuid(),
+                'expires_at' => now()->addDays($request->input('expires_in', 1)),
                 'sender_email' => $request->input('sender_email'),
                 'recipient_email' => $request->input('recipient_email'),
-                'download_token' => Str::uuid(),
-                'expires_at' => now()->addDays($request->input('expires_in', 1))
+                'single_download' => $request->input('single_download', false),
+                'downloaded' => false
             ]);
 
             // Asociar archivos con la transferencia

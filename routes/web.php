@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\File\EmailController;
 use App\Http\Controllers\File\FileController;
 use App\Http\Controllers\File\QR\DirectTransferController;
 use App\Http\Controllers\File\TransferController;
@@ -63,6 +64,16 @@ Route::controller(DirectTransferController::class)
         Route::post('/{token}/validate', 'validatePin');
         Route::get('/{token}/download', 'download')->name('direct.download');
         Route::get('/{token}', 'findTransfer');
+    });
+
+// EMAIL VERIFICATION
+Route::controller(EmailController::class)
+    ->prefix('email')
+    ->middleware('auth.route')
+    ->group(function () {
+        Route::post('/request', 'requestVerification');
+        Route::post('/verify', 'verifyCode');
+        Route::get('/{email}', 'checkVerification');
     });
 
 //! BUILDING...

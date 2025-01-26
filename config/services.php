@@ -49,4 +49,8 @@ return [
         'api_key' => env('VIRUSTOTAL_API_KEY'),
         'timeout' => env('VIRUSTOTAL_TIMEOUT', 30),
     ],
+
+    'resend' => [
+        'key' => env('RESEND_API_KEY'),
+    ],
 ];
