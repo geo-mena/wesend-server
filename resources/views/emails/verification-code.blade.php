@@ -12,7 +12,7 @@
             background-color: #d5e9fb;
         }
         .content {
-            background-color: #f9fafb;
+            background-color: #f2f6f9;
             padding: 32px;
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
@@ -22,6 +22,7 @@
             width: 600px;
             margin: 0 auto;
             border: 1px solid #e5e7eb;
+            background-color: #fff;
             border-radius: 8px;
             padding: 16px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
@@ -37,12 +38,20 @@
             color: #10b981;
             letter-spacing: 4px;
             margin: 24px 0;
+            cursor: pointer;
         }
         .note {
             color: #6b7280;
             font-size: 16px;
         }
     </style>
+    <script>
+        function copyCode() {
+            var codeElement = document.querySelector('.code');
+            navigator.clipboard.writeText(codeElement.textContent);
+            alert('Code copied to clipboard!');
+        }
+    </script>
 </head>
 <body>
     <div class="content">
@@ -53,7 +62,7 @@
             <p class="note">
                 Este es el código de un solo uso que debes introducir para verificar tu dirección de correo electrónico.
             </p>
-            <div class="code">
+            <div class="code" onclick="copyCode()">
                 {{ $code }}
             </div>
             <p class="note">
