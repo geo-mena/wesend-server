@@ -16,5 +16,6 @@ class VerifyCsrfToken extends Middleware
         'v1/*',
         'direct/*',
         'd/*',
+        'email/*',
     ];
 }
