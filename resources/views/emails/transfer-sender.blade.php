@@ -27,7 +27,7 @@
             Descargar archivo enviado
         </a>
 
-        <a href="{{ config('app.frontend_url') }}/send/delete/{{ $data['delete_link'] }}" class="button" style="background: #dc3545;">
+        <a href="{{ config('app.frontend_url') }}/send/{{ $data['delete_link'] }}" class="button" style="background: #dc3545;">
             Eliminar la transferencia
         </a>
     </div>
