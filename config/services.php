@@ -53,4 +53,9 @@ return [
     'resend' => [
         'key' => env('RESEND_API_KEY'),
     ],
+
+    'neon' => [
+        'key' => env('NEON_API_KEY'),
+        'project' => env('NEON_PROJECT_ID'),
+    ],
 ];

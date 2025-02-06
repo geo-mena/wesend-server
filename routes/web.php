@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Database\DatabaseController;
 use App\Http\Controllers\File\EmailController;
 use App\Http\Controllers\File\FileController;
 use App\Http\Controllers\File\QR\DirectTransferController;
@@ -84,4 +85,13 @@ Route::controller(P2PController::class)
         Route::post('/session', 'createSession');
         Route::post('/answer', 'answerOffer');
         Route::post('/ice', 'exchangeICE');
+    });
+
+// DATABASE ROUTES
+Route::controller(DatabaseController::class)
+    ->prefix('v1')
+    ->middleware('auth.route')
+    ->group(function () {
+        Route::post('/create-postgres', 'create');
+        Route::get('/databases/{id}', 'show');
     });
