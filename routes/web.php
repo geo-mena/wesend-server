@@ -94,4 +94,5 @@ Route::controller(DatabaseController::class)
     ->group(function () {
         Route::post('/create-postgres', 'create');
         Route::get('/databases/{id}', 'show');
+        Route::get('/databases', 'getDatabases');
     });

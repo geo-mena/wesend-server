@@ -147,4 +147,28 @@ class DatabaseController extends Controller
             ], 404);
         }
     }
+
+    /**
+     * 🔥 Get user databases
+     *
+     * @param Request $request
+     * @return JsonResponse
+     * @throws Exception
+     */
+    public function getDatabases(Request $request)
+    {
+        try {
+            $databases = $this->databaseService->getActiveDatabase($request->ip());
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $databases
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error retrieving databases: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
