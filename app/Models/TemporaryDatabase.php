@@ -11,7 +11,12 @@ class TemporaryDatabase extends Model
 
     protected $table = 'temporary_databases';
 
+    public $incrementing = false;
+
+    protected $keyType = 'string';
+
     protected $fillable = [
+        'id',
         'connection_url',
         'expires_at',
         'branch_id'

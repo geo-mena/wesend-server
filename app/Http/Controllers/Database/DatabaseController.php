@@ -15,20 +15,35 @@ class DatabaseController extends Controller
     public function create()
     {
         try {
-            // 1. Generar nombre único con prefijo identificable
-            $branchName = 'temp-' . Carbon::now()->format('Ymd-His') . '-' . Str::random(4);
+            $payload = [
+                'endpoints' => [
+                    [
+                        'type' => 'read_write'
+                    ]
+                ],
+                'branch' => [
+                    'parent_id' => config('services.neon.parent_id')
+                ]
+            ];
 
             // 2. Crear branch en Neon
             $neonResponse = Http::withHeaders([
                 'Authorization' => 'Bearer ' . config('services.neon.key'),
                 'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
             ])->timeout(15)
-                ->post('https://console.neon.tech/api/v2/projects/' . config('services.neon.project') . '/branches', [
-                    'branch' => [
-                        'name' => $branchName,
-                        'suspend_timeout' => 60
-                    ]
+                ->post('https://console.neon.tech/api/v2/projects/' . config('services.neon.project') . '/branches', $payload);
+
+            if ($neonResponse->failed()) {
+                Log::error('Error Neon API', [
+                    'status' => $neonResponse->status(),
+                    'response' => $neonResponse->json()
                 ]);
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Error creating database'
+                ], 500);
+            }
 
             if ($neonResponse->failed()) {
                 Log::error('Error Neon API', [
@@ -46,10 +61,10 @@ class DatabaseController extends Controller
             // 3. Construir URL segura
             $connectionUrl = sprintf(
                 "postgresql://%s:%s@%s/%s?sslmode=require",
-                $branchData['role_name'],
-                $branchData['role_password'],
-                $branchData['host'],
-                $branchData['database_name']
+                $branchData['role_name'] ?? 'default_user',
+                $branchData['role_password'] ?? 'default_password',
+                $branchData['host'] ?? 'default_host',
+                $branchData['database_name'] ?? 'default_database'
             );
 
             // 4. Guardar en base de datos local
