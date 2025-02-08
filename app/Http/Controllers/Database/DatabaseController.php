@@ -109,7 +109,30 @@ class DatabaseController extends Controller
      */
     public function show($id)
     {
-        $database = TemporaryDatabase::findOrFail($id);
-        return response()->json($database);
+        try {
+            $database = TemporaryDatabase::findOrFail($id);
+
+            if (Carbon::now()->isAfter($database->expires_at)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Database has expired',
+                    'expired_at' => $database->expires_at
+                ], 410);
+            }
+
+            if (empty($database->connection_url)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Database connection URL is missing'
+                ], 500);
+            }
+
+            return response()->json($database);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Database not found ' . $e->getMessage()
+            ], 404);
+        }
     }
 }
