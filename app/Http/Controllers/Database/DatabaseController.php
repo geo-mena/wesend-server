@@ -3,21 +3,31 @@
 namespace App\Http\Controllers\Database;
 
 use App\Http\Controllers\Controller;
+use App\Services\Database\DatabaseService;
 use Illuminate\Support\Facades\Http;
 use App\Models\TemporaryDatabase;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Exception;
 
 class DatabaseController extends Controller
 {
+    protected $databaseService;
+
+    public function __construct(
+        DatabaseService $databaseService
+    ) {
+        $this->databaseService = $databaseService;
+    }
+
     /**
      * 🔥 Create a new database
      *
      * @return JsonResponse
      * @throws Exception
      */
-    public function create()
+    public function create(Request $request)
     {
         try {
             $payload = [
@@ -80,6 +90,8 @@ class DatabaseController extends Controller
                 'branch_id' => $branchId,
                 'expires_at' => Carbon::now()->addHour(),
             ]);
+
+            $this->databaseService->registerDatabase($request->ip(), $tempDb->id);
 
             $dataResponse = [
                 'id' => $tempDb->id,
