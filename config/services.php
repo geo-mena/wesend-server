@@ -57,5 +57,6 @@ return [
     'neon' => [
         'key' => env('NEON_API_KEY'),
         'project' => env('NEON_PROJECT_ID'),
+        'parent_id' => env('NEON_PARENT_ID'),
     ],
 ];
