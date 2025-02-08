@@ -2,14 +2,16 @@
 
 namespace App\Console\Commands;
 
+use App\Services\Database\DatabaseService;
 use Illuminate\Console\Command;
+use Exception;
 
 class CleanExpiredDatabases extends Command
 {
     protected $signature = 'databases:clean';
     protected $description = 'Clean expired database records';
 
-    public function handle(TempDatabaseService $service)
+    public function handle(DatabaseService $service)
     {
         try {
             $this->info('🚀 Starting cleanup of expired database records...');
