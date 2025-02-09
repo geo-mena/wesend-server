@@ -87,6 +87,7 @@ class DatabaseService
      * 
      * @param string $ip
      * @return void
+     * @throws Exception
      */
     public function invalidateDatabase(string $ip): void
     {
@@ -102,6 +103,7 @@ class DatabaseService
      * Limpia registros expirados
      * 
      * @return void
+     * @throws Exception
      */
     public function cleanExpiredDatabases(): void
     {
