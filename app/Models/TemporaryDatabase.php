@@ -19,6 +19,14 @@ class TemporaryDatabase extends Model
         'id',
         'connection_url',
         'expires_at',
-        'branch_id'
+        'branch_id',
+        'transferred',
+        'transferred_at'
+    ];
+
+    protected $casts = [
+        'expires_at' => 'datetime',
+        'transferred_at' => 'datetime',
+        'transferred' => 'boolean'
     ];
 }
