@@ -24,6 +24,7 @@ class DatabaseController extends Controller
     /**
      * 🔥 Create a new database
      *
+     * @param Request $request
      * @return JsonResponse
      * @throws Exception
      */
