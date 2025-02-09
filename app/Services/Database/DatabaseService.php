@@ -4,6 +4,7 @@ namespace App\Services\Database;
 
 use Illuminate\Support\Facades\Redis;
 use App\Models\TemporaryDatabase;
+use Illuminate\Support\Facades\Http;
 use Carbon\Carbon;
 use Exception;
 
@@ -108,15 +109,57 @@ class DatabaseService
     public function cleanExpiredDatabases(): void
     {
         try {
-            $pattern = 'temp_db:*';
-            $keys = $this->redis->keys($pattern);
+            $expiredDatabases = TemporaryDatabase::where('expires_at', '<', Carbon::now())->get();
 
-            foreach ($keys as $key) {
-                $databaseId = $this->redis->get($key);
-                if ($databaseId) {
-                    $database = TemporaryDatabase::find($databaseId);
-                    if (!$database || Carbon::now()->isAfter($database->expires_at)) {
-                        $this->redis->del($key);
+            foreach ($expiredDatabases as $database) {
+                $neonDeleted = false;
+                $maxRetries = 3;
+                $attempt = 0;
+
+                while (!$neonDeleted && $attempt < $maxRetries) {
+                    try {
+                        $response = Http::withHeaders([
+                            'Authorization' => 'Bearer ' . config('services.neon.key'),
+                            'Accept' => 'application/json',
+                        ])
+                            ->delete(
+                                'https://console.neon.tech/api/v2/projects/' .
+                                    config('services.neon.project') .
+                                    '/branches/' .
+                                    $database->branch_id
+                            );
+
+                        if ($response->successful()) {
+                            $neonDeleted = true;
+                        } else {
+                            $attempt++;
+                            if ($attempt < $maxRetries) {
+                                sleep(2);
+                            }
+                        }
+                    } catch (Exception $e) {
+                        $attempt++;
+                        if ($attempt < $maxRetries) {
+                            sleep(2);
+                        }
+                    }
+                }
+
+                if ($neonDeleted) {
+                    try {
+                        $database->delete();
+
+                        $pattern = 'temp_db:*';
+                        $keys = $this->redis->keys($pattern);
+
+                        foreach ($keys as $key) {
+                            $databaseId = $this->redis->get($key);
+                            if ($databaseId === $database->id) {
+                                $this->redis->del($key);
+                            }
+                        }
+                    } catch (Exception $e) {
+                        throw $e;
                     }
                 }
             }
