@@ -29,9 +29,12 @@ Route::prefix('v1')->group(function () {
     Route::get('download/{token}', [TransferController::class, 'download'])->name('download');
 });
 
-Route::prefix('cron')->group(function () {
-    Route::get('clean-orphaned', [CronController::class, 'cleanOrphanedFiles']);
-    Route::get('clean-transfers', [CronController::class, 'cleanExpiredTransfers']);
-    Route::get('clean-rate-limits', [CronController::class, 'cleanOrphanedRecords']);
-    Route::get('clean-direct-transfers', [CronController::class, 'cleanDirectTransfers']);
-});
+Route::controller(CronController::class)
+    ->prefix('cron')
+    ->group(function () {
+        Route::get('clean-orphaned', 'cleanOrphanedFiles');
+        Route::get('clean-transfers', 'cleanExpiredTransfers');
+        Route::get('clean-rate-limits', 'cleanOrphanedRecords');
+        Route::get('clean-direct-transfers', 'cleanDirectTransfers');
+        Route::get('clean-temp-databases', 'cleanExpiredDatabases');
+    });
