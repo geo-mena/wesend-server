@@ -49,7 +49,7 @@
         }
         .section-title {
             color: #1f2937;
-            font-size: 20px;
+            font-size: 16px;
             font-weight: 600;
             margin: 24px 0 16px;
         }
@@ -98,6 +98,11 @@
             align-items: center;
             font-weight: 500;
             transition: background-color 0.2s;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
             margin: 24px 0;
         }
         .download-button:hover {
@@ -109,7 +114,6 @@
         .message-section {
             margin-top: 32px;
             padding-top: 24px;
-            border-top: 1px solid #e5e7eb;
         }
         .message-title {
             color: #374151;
@@ -129,11 +133,19 @@
     <div class="content">
         <div class="card">
             <div class="sender-info">
-                <span class="sender-icon">👤</span>
                 <div>
-                    <div>Enviado por: <span class="sender-email">{{ $data['senderEmail'] }}</span></div>
+                    <div class="message-title">Enviado por:</div>
+                    <div class="sender-email">{{ $data['senderEmail'] }}</div>
                 </div>
             </div>
+
+            @if($data['message'])
+                <div class="message-section">
+                    <div class="message-content">
+                        {{ $data['message'] }}
+                    </div>
+                </div>
+            @endif
 
             <div class="section-title">Contenido de la descarga</div>
             
@@ -154,22 +166,13 @@
                 Este enlace es válido hasta el {{ $data['expirationDate'] }} (UTC +01:00)
             </div>
 
-            <div style="display: flex; justify-content: center;">
+            <div class="button-container">
                 <a href="{{ config('app.frontend_url') }}/send/{{ $data['downloadToken'] }}" 
                    class="download-button">
                     <span class="button-icon">⬇️</span>
                     Descargar el archivo
                 </a>
             </div>
-            
-            @if($data['message'])
-                <div class="message-section">
-                    <div class="message-title">Mensaje:</div>
-                    <div class="message-content">
-                        {{ $data['message'] }}
-                    </div>
-                </div>
-            @endif
         </div>
     </div>
 </body>
