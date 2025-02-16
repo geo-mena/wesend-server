@@ -24,7 +24,7 @@ class ValidateApiToken
         if ($token !== env('API_TOKEN')) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized access'
+                'message' => 'Unauthorized access to this resource'
             ], 401);
         }
 
