@@ -21,7 +21,7 @@
             margin: 20px;
         }
         .card {
-            width: 600px;
+            width: 500px;
             margin: 0 auto;
             border: 1px solid #e5e7eb;
             background-color: #fff;
@@ -50,7 +50,7 @@
             font-size: 16px;
             font-weight: 600;
             margin: 32px 0 16px;
-            text-align: left;
+            text-align: center;
         }
         .file-card {
             background-color: #f9fafb;
@@ -88,9 +88,7 @@
             margin-right: 12px;
         }
         .button-wrapper {
-            display: flex;
-            justify-content: center;
-            width: 100%;
+            text-align: center;
             padding: 24px 0;
         }
         .download-button {
@@ -99,7 +97,7 @@
             padding: 16px 32px;
             text-decoration: none;
             border-radius: 8px;
-            display: inline-flex;
+            display: inline-block;
             align-items: center;
             justify-content: center;
             font-weight: 500;
