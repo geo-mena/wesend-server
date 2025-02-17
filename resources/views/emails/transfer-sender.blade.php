@@ -136,7 +136,7 @@
             border-radius: 8px;
             color: #4b5563;
             font-size: 14px;
-            margin: 24px 0;
+            margin: 12px 0;
             display: flex;
             align-items: center;
         }
@@ -192,7 +192,7 @@
                 <a href="{{ config('app.frontend_url') }}/send/{{ $data['download_link'] }}" 
                    class="button button-download">
                     <span class="button-icon">⬇️</span>
-                    Descargar archivo enviado
+                    Descargar archivos
                 </a>
 
                 <a href="{{ config('app.frontend_url') }}/delete/{{ $data['delete_link'] }}" 
