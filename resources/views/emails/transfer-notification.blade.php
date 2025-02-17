@@ -33,15 +33,13 @@
         .sender-info {
             background-color: #f3f4f6;
             padding: 16px;
-            border-radius: 6px;
+            border-radius: 8px;
             margin-bottom: 24px;
-            display: flex;
-            align-items: center;
         }
-        .sender-icon {
-            margin-right: 12px;
-            color: #6b7280;
-            font-size: 20px;
+        .message-title {
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 8px;
         }
         .sender-email {
             color: #374151;
@@ -51,14 +49,15 @@
             color: #1f2937;
             font-size: 16px;
             font-weight: 600;
-            margin: 24px 0 16px;
+            margin: 32px 0 16px;
+            text-align: left;
         }
         .file-card {
             background-color: #f9fafb;
             border: 1px solid #e5e7eb;
             border-radius: 8px;
             padding: 16px;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
         .file-name {
             display: flex;
@@ -77,8 +76,8 @@
         }
         .expiry-info {
             background-color: #f3f4f6;
-            padding: 12px 16px;
-            border-radius: 6px;
+            padding: 16px;
+            border-radius: 8px;
             color: #4b5563;
             font-size: 14px;
             margin: 24px 0;
@@ -88,57 +87,55 @@
         .expiry-icon {
             margin-right: 12px;
         }
+        .button-wrapper {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            padding: 24px 0;
+        }
         .download-button {
             background-color: #10b981;
             color: white;
-            padding: 14px 28px;
+            padding: 16px 32px;
             text-decoration: none;
-            border-radius: 6px;
+            border-radius: 8px;
             display: inline-flex;
             align-items: center;
-            font-weight: 500;
-            transition: background-color 0.2s;
-        }
-        .button-container {
-            display: flex;
             justify-content: center;
-            align-items: center;
-            margin: 24px 0;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            min-width: 200px;
         }
         .download-button:hover {
             background-color: #059669;
+            transform: translateY(-1px);
         }
         .button-icon {
             margin-right: 8px;
         }
         .message-section {
-            margin-top: 32px;
-            padding-top: 24px;
-        }
-        .message-title {
-            color: #374151;
-            font-weight: 600;
-            margin-bottom: 12px;
+            margin: 24px 0;
         }
         .message-content {
             background-color: #f9fafb;
-            padding: 16px;
-            border-radius: 6px;
+            padding: 20px;
+            border-radius: 8px;
             color: #4b5563;
             line-height: 1.5;
+            text-align: left;
         }
     </style>
 </head>
 <body>
     <div class="content">
         <div class="card">
+            <!-- Sección del remitente -->
             <div class="sender-info">
-                <div>
-                    <div class="message-title">Enviado por:</div>
-                    <div class="sender-email">{{ $data['senderEmail'] }}</div>
-                </div>
+                <div class="message-title">Enviado por:</div>
+                <div class="sender-email">{{ $data['senderEmail'] }}</div>
             </div>
 
+            <!-- Sección del mensaje -->
             @if($data['message'])
                 <div class="message-section">
                     <div class="message-content">
@@ -147,8 +144,8 @@
                 </div>
             @endif
 
+            <!-- Sección de archivos -->
             <div class="section-title">Contenido de la descarga</div>
-            
             @foreach ($data['files'] as $file)
                 <div class="file-card">
                     <div class="file-name">
@@ -161,12 +158,14 @@
                 </div>
             @endforeach
 
+            <!-- Sección de expiración -->
             <div class="expiry-info">
                 <span class="expiry-icon">⏳</span>
                 Este enlace es válido hasta el {{ $data['expirationDate'] }} (UTC +01:00)
             </div>
 
-            <div class="button-container">
+            <!-- Botón de descarga -->
+            <div class="button-wrapper">
                 <a href="{{ config('app.frontend_url') }}/send/{{ $data['downloadToken'] }}" 
                    class="download-button">
                     <span class="button-icon">⬇️</span>
