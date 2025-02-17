@@ -59,12 +59,6 @@
             margin: 16px 0;
             text-align: left;
         }
-        .files-section h3 {
-            color: #374151;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
         .files-list {
             list-style: none;
             padding: 0;
