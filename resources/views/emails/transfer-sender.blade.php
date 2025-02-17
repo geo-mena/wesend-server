@@ -150,6 +150,24 @@
             margin: 32px 0 16px;
             text-align: center;
         }
+        .file-card {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .file-name {
+            display: flex;
+            align-items: center;
+            color: #374151;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        .file-icon {
+            margin-right: 12px;
+            color: #6b7280;
+        }
     </style>
 </head>
 <body>
@@ -167,7 +185,7 @@
             </div>
 
             <div class="section-title">Contenido de la descarga</div>
-            <div class="files-section">
+            {{-- <div class="files-section">
                 <ul class="files-list">
                     @foreach ($data['files'] as $file)
                         <li class="file-item">
@@ -176,7 +194,16 @@
                         </li>
                     @endforeach
                 </ul>
-            </div>
+            </div> --}}
+
+            @foreach ($data['files'] as $file)
+                <div class="file-card">
+                    <div class="file-name">
+                        <span class="file-icon">📄</span>
+                        {{ $file->original_name }}
+                    </div>
+                </div>
+            @endforeach
 
             <div class="info-box">
                 <strong>Tamaño de los archivos:</strong>
