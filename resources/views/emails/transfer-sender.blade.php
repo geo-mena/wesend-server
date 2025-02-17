@@ -136,6 +136,26 @@
         .button-icon {
             margin-right: 8px;
         }
+        .expiry-info {
+            background-color: #f3f4f6;
+            padding: 16px;
+            border-radius: 8px;
+            color: #4b5563;
+            font-size: 14px;
+            margin: 24px 0;
+            display: flex;
+            align-items: center;
+        }
+        .expiry-icon {
+            margin-right: 12px;
+        }
+        .section-title {
+            color: #1f2937;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 32px 0 16px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -152,8 +172,8 @@
                 {{ $data['recipient_email'] }}
             </div>
 
+            <div class="section-title">Contenido de la descarga</div>
             <div class="files-section">
-                <h3>Contenido de la descarga:</h3>
                 <ul class="files-list">
                     @foreach ($data['files'] as $file)
                         <li class="file-item">
@@ -169,9 +189,9 @@
                 {{ $data['total_size'] }}
             </div>
 
-            <div class="info-box">
-                <strong>Este enlace es válido hasta el:</strong>
-                {{ $data['expiration_date'] }}
+           <div class="expiry-info">
+                <span class="expiry-icon">⏳</span>
+                Este enlace es válido hasta el {{ $data['expiration_date'] }} (UTC +01:00)
             </div>
 
             <div class="buttons-container">
