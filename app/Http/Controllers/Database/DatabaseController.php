@@ -11,6 +11,9 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Exception;
 
+use Sentry\Laravel\Facade as Sentry;
+use Sentry\State\Scope;
+
 class DatabaseController extends Controller
 {
     protected $databaseService;
@@ -42,6 +45,8 @@ class DatabaseController extends Controller
                 ]
             ];
 
+            $startTime = microtime(true);
+
             $neonResponse = Http::withHeaders([
                 'Authorization' => 'Bearer ' . config('services.neon.key'),
                 'Accept' => 'application/json',
@@ -50,12 +55,18 @@ class DatabaseController extends Controller
                 ->timeout(15)
                 ->post('https://console.neon.tech/api/v2/projects/' . config('services.neon.project') . '/branches', $payload);
 
-            if ($neonResponse->failed()) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Error creating database'
-                ], 500);
-            }
+            // Capture the duration and response SENTRY
+            $duration = round(microtime(true) - $startTime, 3);
+            $responseSize = strlen($neonResponse->body());
+
+            Sentry::configureScope(function (Scope $scope) use ($neonResponse, $duration, $responseSize) {
+                $scope->setContext('API Response', [
+                    'status_code' => $neonResponse->status(),
+                    'duration_seconds' => $duration,
+                    'response_size_bytes' => $responseSize,
+                    'response_sample' => substr($neonResponse->body(), 0, 200)
+                ]);
+            });
 
             if ($neonResponse->failed()) {
                 return response()->json([
@@ -106,6 +117,7 @@ class DatabaseController extends Controller
                 'data' => $dataResponse
             ]);
         } catch (Exception $e) {
+            Sentry::captureException($e);
             return response()->json([
                 'status' => 'error',
                 'message' => 'Internal server error ' . $e->getMessage()
@@ -142,6 +154,7 @@ class DatabaseController extends Controller
 
             return response()->json($database);
         } catch (Exception $e) {
+            Sentry::captureException($e);
             return response()->json([
                 'status' => 'error',
                 'message' => 'Database not found ' . $e->getMessage()
@@ -166,6 +179,7 @@ class DatabaseController extends Controller
                 'data' => $databases
             ]);
         } catch (Exception $e) {
+            Sentry::captureException($e);
             return response()->json([
                 'status' => 'error',
                 'message' => 'Error retrieving databases: ' . $e->getMessage()
