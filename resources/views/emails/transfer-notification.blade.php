@@ -80,7 +80,7 @@
             border-radius: 8px;
             color: #4b5563;
             font-size: 14px;
-            margin: 24px 0;
+            margin: 12px 0;
             display: flex;
             align-items: center;
         }
