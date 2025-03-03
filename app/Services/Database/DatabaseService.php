@@ -19,7 +19,7 @@ class DatabaseService
     }
 
     /**
-     * Registra una nueva base de datos para una IP
+     * 🔒️ Registra una nueva base de datos para una IP
      * 
      * @param string $ip
      * @param string $databaseId
@@ -41,7 +41,7 @@ class DatabaseService
     }
 
     /**
-     * Obtiene la base de datos activa para una IP
+     * 🔒️ Obtiene la base de datos activa para una IP
      * 
      * @param string $ip
      * @return array
@@ -84,7 +84,7 @@ class DatabaseService
     }
 
     /**
-     * Invalida la base de datos para una IP
+     * 🔒️ Invalida la base de datos para una IP
      * 
      * @param string $ip
      * @return void
@@ -101,7 +101,7 @@ class DatabaseService
     }
 
     /**
-     * Limpia registros expirados
+     * 🔒️ Limpia registros expirados
      * 
      * @return void
      * @throws Exception
