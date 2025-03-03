@@ -25,7 +25,7 @@ class DatabaseController extends Controller
     }
 
     /**
-     * 🔥 Create a new database
+     * 🌱 Create a new database
      *
      * @param Request $request
      * @return JsonResponse
@@ -126,7 +126,7 @@ class DatabaseController extends Controller
     }
 
     /**
-     * 🔥 Show a database
+     * 🌱 Show a database
      *
      * @param $id
      * @return JsonResponse
@@ -163,7 +163,7 @@ class DatabaseController extends Controller
     }
 
     /**
-     * 🔥 Get user databases
+     * 🌱 Get user databases
      *
      * @param Request $request
      * @return JsonResponse
