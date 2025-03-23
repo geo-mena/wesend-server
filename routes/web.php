@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Base64\Base64ImageController;
 use App\Http\Controllers\Database\DatabaseController;
 use App\Http\Controllers\File\EmailController;
 use App\Http\Controllers\File\FileController;
@@ -95,4 +96,13 @@ Route::controller(DatabaseController::class)
         Route::post('/create-postgres', 'create');
         Route::get('/databases/{id}', 'show');
         Route::get('/databases', 'getDatabases');
+    });
+
+// BASE64 ROUTES
+Route::controller(Base64ImageController::class)
+    ->prefix('v1')
+    //->middleware('auth.route')
+    ->group(function () {
+        Route::post('/base64Image', 'decode')->name('api.base64.decode');
+        Route::get('/base64Image/download/{fileName}', 'download')->name('api.base64.download');
     });
