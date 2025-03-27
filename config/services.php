@@ -59,4 +59,11 @@ return [
         'project' => env('NEON_PROJECT_ID'),
         'parent_id' => env('NEON_PARENT_ID'),
     ],
+
+    'aws' => [
+        'key' => env('AWS_ACCESS_KEY_ID'),
+        'secret' => env('AWS_SECRET_ACCESS_KEY'),
+        'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+        'profile' => env('AWS_PROFILE', 'support'),
+    ],
 ];
