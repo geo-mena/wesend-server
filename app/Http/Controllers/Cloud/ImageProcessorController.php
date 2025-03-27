@@ -13,8 +13,17 @@ use Exception;
 
 class ImageProcessorController extends Controller
 {
+    /**
+     * @var S3Client
+     */
     protected $s3Client;
     
+    /**
+     * Constructor s3Client with AWS credentials
+     * 
+     * @return void
+     * @throws Exception
+     */
     public function __construct()
     {
         $this->s3Client = new S3Client([
@@ -48,9 +57,11 @@ class ImageProcessorController extends Controller
         }
 
         try {
+            // Process the uploaded CSV file
             $csvFile = $request->file('csv_file');
             $csvPath = $csvFile->getRealPath();
             
+            // Read CSV file
             $csv = Reader::createFromPath($csvPath, 'r');
             $csv->setHeaderOffset(0);
             
@@ -70,8 +81,10 @@ class ImageProcessorController extends Controller
                 $imageKey = $record['documentfrontrawimage'];
                 
                 try {
+                    // Get corresponding JSON key
                     $jsonKey = $this->getJsonKey($imageKey);
                     
+                    // Download JSON file from S3
                     $jsonObject = $this->s3Client->getObject([
                         'Bucket' => $request->bucket_name,
                         'Key' => $jsonKey,
@@ -86,18 +99,22 @@ class ImageProcessorController extends Controller
                     
                     $requestBody = json_decode($data['requestBody'], true);
                     
+                    // Get base64-encoded image data
                     if (!isset($requestBody['documentFrontRawImage']) || !isset($requestBody['documentBackRawImage'])) {
                         throw new Exception("Missing 'documentFrontRawImage' or 'documentBackRawImage' in requestBody");
                     }
                     
+                    // Decode base64 to image bytes
                     $frontImageB64 = $requestBody['documentFrontRawImage'];
                     $backImageB64 = $requestBody['documentBackRawImage'];
                     
                     $frontImageBytes = base64_decode($frontImageB64);
                     $backImageBytes = base64_decode($backImageB64);
                     
+                    // Extract transaction ID for naming
                     $transactionId = basename($jsonKey, '.json');
                     
+                    // Save images as PNG
                     $frontImagePath = "{$outputDir}/{$transactionId}_front.png";
                     $backImagePath = "{$outputDir}/{$transactionId}_back.png";
                     
@@ -129,7 +146,7 @@ class ImageProcessorController extends Controller
             Log::error("Processing failed: {$e->getMessage()}");
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => "Processing failed: " . $e->getMessage()
             ], 500);
         }
     }
@@ -145,6 +162,7 @@ class ImageProcessorController extends Controller
     {
         $parts = explode('/', $imageKey);
         
+        // Find the resource index
         $resourceIndex = null;
         foreach ($parts as $i => $part) {
             if (strpos($part, 'resource=') === 0) {
@@ -159,6 +177,7 @@ class ImageProcessorController extends Controller
         
         $basePath = implode('/', array_slice($parts, 0, $resourceIndex + 1));
         
+        // Get transaction part
         $transactionPart = $parts[$resourceIndex + 1];
         if (strpos($transactionPart, 'transaction=') !== 0) {
             throw new Exception("Invalid key format: {$imageKey}");
