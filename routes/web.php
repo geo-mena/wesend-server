@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Base64\Base64ImageController;
+use App\Http\Controllers\Cloud\ImageProcessorController;
 use App\Http\Controllers\Database\DatabaseController;
 use App\Http\Controllers\File\EmailController;
 use App\Http\Controllers\File\FileController;
@@ -105,4 +106,12 @@ Route::controller(Base64ImageController::class)
     ->group(function () {
         Route::post('/base64Image', 'decode')->name('api.base64.decode');
         Route::get('/base64Image/download/{fileName}', 'download')->name('api.base64.download');
+    });
+
+// IMAGE PROCESSOR ROUTES S3
+Route::controller(ImageProcessorController::class)
+    ->prefix('v1')
+    // ->middleware('auth.route')
+    ->group(function () {
+        Route::post('/processImages', 'processImages');
     });
