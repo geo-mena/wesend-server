@@ -48,7 +48,7 @@ class DetokenizeController extends Controller
             if (!$imageBuffer) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'No se pudo detokenizar la imagen'
+                    'message' => 'Could not detokenize the image'
                 ], 400);
             }
 
@@ -58,7 +58,7 @@ class DetokenizeController extends Controller
             if (!$imageInfo) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'No se pudo procesar la imagen detokenizada'
+                    'message' => 'Could not process the detokenized image'
                 ], 400);
             }
 
@@ -78,13 +78,13 @@ class DetokenizeController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Imagen detokenizada con éxito',
+                'message' => 'Image detokenized successfully',
                 'data' => $response
             ]);
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error al detokenizar la imagen: ' . $e->getMessage()
+                'message' => 'Error detokenizing the image: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -112,12 +112,12 @@ class DetokenizeController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Archivo no encontrado'
+                'message' => 'File not found'
             ], 404);
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error al descargar el archivo'
+                'message' => 'Error downloading the file: ' . $e->getMessage()
             ], 500);
         }
     }
