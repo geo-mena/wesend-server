@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Base64;
 
 use App\Http\Controllers\Controller;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use App\Services\Base64\Base64ImageService;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Exception;
 
 class Base64ImageController extends Controller
