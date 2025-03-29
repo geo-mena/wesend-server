@@ -79,6 +79,14 @@ class DetokenizeController extends Controller
                 $response['transactionId'] = $transactionId;
             }
 
+            if (isset($imageInfo['jpeg_quality'])) {
+                $response['jpeg_quality'] = $imageInfo['jpeg_quality'];
+            }
+
+            if (isset($imageInfo['is_progressive'])) {
+                $response['is_progressive_jpeg'] = $imageInfo['is_progressive'];
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Image detokenized successfully',
