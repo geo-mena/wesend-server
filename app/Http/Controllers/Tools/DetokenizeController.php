@@ -1,55 +1,71 @@
 <?php
 
-namespace App\Http\Controllers\Base64;
+namespace App\Http\Controllers\Tools;
 
 use App\Http\Controllers\Controller;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use App\Services\Base64\Base64ImageService;
+use App\Services\Base64\DetokenizeService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Exception;
 
-class Base64ImageController extends Controller
+class DetokenizeController extends Controller
 {
-    protected $base64Service;
+    protected $detokenizeService;
 
     /**
      * Constructor con inyección de dependencias
      * 
-     * @param Base64ImageService $base64Service
+     * @param DetokenizeService $detokenizeService
      * @return void
      */
-    public function __construct(Base64ImageService $base64Service)
+    public function __construct(DetokenizeService $detokenizeService)
     {
-        $this->base64Service = $base64Service;
+        $this->detokenizeService = $detokenizeService;
     }
 
     /**
-     * Decodificar un string Base64 y guardar la imagen en el sistema de archivos
+     * Detokenizar una imagen encriptada y devolver sus detalles
      *
      * @param Request $request
      * @return JsonResponse
      * @throws Exception
      */
-    public function decode(Request $request)
+    public function detokenize(Request $request)
     {
         try {
             $request->validate([
-                'base64_code' => 'required|string',
+                'bestImageToken' => 'required|string',
+                'transactionId' => 'nullable|string',
             ]);
 
-            $base64String = $request->input('base64_code');
+            $bestImageToken = $request->input('bestImageToken');
+            $transactionId = $request->input('transactionId');
 
-            $imageInfo = $this->base64Service->decodeAndSave($base64String, 'public', 'temp');
+            // Obtener el buffer de imagen en base64
+            $imageBuffer = $this->detokenizeService->detokenizeImage($bestImageToken, $transactionId);
+            
+            if (!$imageBuffer) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se pudo detokenizar la imagen'
+                ], 400);
+            }
+
+            // Decodificar y guardar la imagen
+            $imageInfo = $this->detokenizeService->decodeAndSaveImage($imageBuffer, 'public', 'detokenized');
 
             if (!$imageInfo) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'El string Base64 no es válido o no se pudo procesar la imagen'
+                    'message' => 'No se pudo procesar la imagen detokenizada'
                 ], 400);
             }
 
             $response = [
+                'timestamp' => now()->toIso8601String(),
+                'transactionId' => $transactionId,
+                'imageBuffer' => $imageBuffer,
                 'file_name' => $imageInfo['file_name'],
                 'mime_type' => $imageInfo['mime_type'],
                 'extension' => $imageInfo['extension'],
@@ -57,33 +73,33 @@ class Base64ImageController extends Controller
                 'height' => $imageInfo['height'],
                 'size' => $imageInfo['size'],
                 'preview_url' => $imageInfo['url'],
-                'download_url' => route('api.base64.download', $imageInfo['file_name']),
+                'download_url' => route('api.detokenize.download', $imageInfo['file_name']),
             ];
 
             return response()->json([
                 'success' => true,
-                'message' => 'Image processed successfully',
+                'message' => 'Imagen detokenizada con éxito',
                 'data' => $response
             ]);
+            
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error al procesar la imagen'
+                'message' => 'Error al detokenizar la imagen: ' . $e->getMessage()
             ], 500);
         }
     }
 
     /**
-     * Descargar un archivo del sistema de archivos
+     * Descargar una imagen detokenizada
      *
      * @param string $fileName
      * @return BinaryFileResponse|JsonResponse
-     * @throws Exception
      */
     public function download($fileName)
     {
         try {
-            $filePath = 'temp/' . $fileName;
+            $filePath = 'detokenized/' . $fileName;
 
             if (file_exists(storage_path('app/public/' . $filePath))) {
                 $fullPath = storage_path('app/public/' . $filePath);

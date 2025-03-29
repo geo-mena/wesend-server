@@ -8,6 +8,7 @@ use App\Http\Controllers\File\FileController;
 use App\Http\Controllers\File\QR\DirectTransferController;
 use App\Http\Controllers\File\TransferController;
 use App\Http\Controllers\P2P\P2PController;
+use App\Http\Controllers\Tools\DetokenizeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -114,4 +115,13 @@ Route::controller(ImageProcessorController::class)
     // ->middleware('auth.route')
     ->group(function () {
         Route::post('/processImages', 'processImages');
+    });
+
+// DETOKENIZE ROUTES
+Route::controller(DetokenizeController::class)
+    ->prefix('v1')
+    //->middleware('auth.route')
+    ->group(function () {
+        Route::post('/detokenize', 'detokenize');
+        Route::get('/detokenize/download/{fileName}',  'download')->name('api.detokenize.download');
     });
