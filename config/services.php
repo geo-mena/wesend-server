@@ -66,4 +66,9 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
         'profile' => env('AWS_PROFILE', 'support'),
     ],
+
+    'identity' => [
+        'base_url' => env('IDENTITY_API_BASE_URL', 'https://api.identity.example.com'),
+        'api_key' => env('IDENTITY_API_KEY'),
+    ],
 ];
