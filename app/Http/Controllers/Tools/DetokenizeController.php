@@ -44,7 +44,7 @@ class DetokenizeController extends Controller
 
             // Obtener el buffer de imagen en base64
             $imageBuffer = $this->detokenizeService->detokenizeImage($bestImageToken, $transactionId);
-            
+
             if (!$imageBuffer) {
                 return response()->json([
                     'success' => false,
@@ -64,8 +64,6 @@ class DetokenizeController extends Controller
 
             $response = [
                 'timestamp' => now()->toIso8601String(),
-                'transactionId' => $transactionId,
-                'imageBuffer' => $imageBuffer,
                 'file_name' => $imageInfo['file_name'],
                 'mime_type' => $imageInfo['mime_type'],
                 'extension' => $imageInfo['extension'],
@@ -74,6 +72,8 @@ class DetokenizeController extends Controller
                 'size' => $imageInfo['size'],
                 'preview_url' => $imageInfo['url'],
                 'download_url' => route('api.detokenize.download', $imageInfo['file_name']),
+                'transactionId' => $transactionId,
+                'imageBuffer' => $imageBuffer,
             ];
 
             return response()->json([
@@ -81,7 +81,6 @@ class DetokenizeController extends Controller
                 'message' => 'Imagen detokenizada con éxito',
                 'data' => $response
             ]);
-            
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
