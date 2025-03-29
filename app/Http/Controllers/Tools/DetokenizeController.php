@@ -72,9 +72,12 @@ class DetokenizeController extends Controller
                 'size' => $imageInfo['size'],
                 'preview_url' => $imageInfo['url'],
                 'download_url' => route('api.detokenize.download', $imageInfo['file_name']),
-                'transactionId' => $transactionId,
                 'imageBuffer' => $imageBuffer,
             ];
+
+            if ($transactionId !== null) {
+                $response['transactionId'] = $transactionId;
+            }
 
             return response()->json([
                 'success' => true,

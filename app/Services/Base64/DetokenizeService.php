@@ -38,19 +38,24 @@ class DetokenizeService
      * Detokenizar una imagen encriptada
      *
      * @param string $bestImageToken Token de la imagen encriptada
-     * @param string $transactionId ID de la transacción
+     * @param string|null $transactionId ID de la transacción (opcional)
      * @return string|false String Base64 de la imagen o false si hay error
      */
-    public function detokenizeImage($bestImageToken, $transactionId)
+    public function detokenizeImage($bestImageToken, $transactionId = null)
     {
         try {
+            $requestData = [
+                'bestImageToken' => $bestImageToken
+            ];
+
+            if ($transactionId !== null) {
+                $requestData['transactionId'] = $transactionId;
+            }
+
             $response = Http::withHeaders([
                 'x-api-key' => $this->apiKey,
                 'Content-Type' => 'application/json'
-            ])->post($this->identityApiBaseUrl . '/services/detokenize', [
-                'bestImageToken' => $bestImageToken,
-                'transactionId' => $transactionId
-            ]);
+            ])->post($this->identityApiBaseUrl . '/services/detokenize', $requestData);
 
             if ($response->successful()) {
                 $data = $response->json();
